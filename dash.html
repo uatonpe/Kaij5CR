@@ -3,99 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>कामगिरी डॅशबोर्ड</title>
+    <title>मिशन 5 CR - लाईव्ह डॅशबोर्ड</title>
+    
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js library for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-        :root { --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #f4f7f9; --card-background: #ffffff; --text-color: #34495e; --header-color: #2c3e50; --green: #2ecc71; --orange: #f39c12; --purple: #9b59b6; --red: #e74c3c; --shadow: 0 5px 15px rgba(0, 0, 0, 0.08); }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; color: var(--text-color); }
-        .container { max-width: 1400px; margin: auto; }
-        .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px; }
-        .header h1 { color: var(--header-color); margin: 0; font-size: 28px; }
-        .date-filter { display: flex; align-items: center; gap: 10px; background: var(--card-background); padding: 8px 15px; border-radius: 8px; box-shadow: var(--shadow); }
-        #dashboardDate { border: none; font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--primary-color); background: transparent; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--card-background); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); }
-        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .card-icon { font-size: 22px; height: 50px; width: 50px; border-radius: 50%; display: grid; place-items: center; }
-        .card-title { font-size: 16px; font-weight: 500; color: #7f8c8d; }
-        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary-color); }
-        .kpi-value.small { font-size: 20px; color: #7f8c8d; font-weight: 500;}
-        #goal-card .kpi-value { font-size: 34px; }
-        .progress-bar-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-        .progress-bar { height: 10px; width: 0%; background-color: var(--green); border-radius: 10px; transition: width 0.5s ease-in-out; }
-        .full-width-card { grid-column: 1 / -1; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ecf0f1; }
-        th { background-color: #f7f9fc; font-weight: 600; color: var(--primary-color); }
-        tbody tr:hover { background-color: #fcfcfc; }
-        .loader { text-align: center; padding: 50px; font-size: 20px; font-weight: 500; color: var(--secondary-color); grid-column: 1 / -1;}
-        #chart-container { height: 400px; }
+        /* CSS code is embedded here */
+        :root {
+            --bg-color: #0f172a; /* Dark blue background */
+            --card-color: #1e293b; /* Slightly lighter card background */
+            --border-color: #334155;
+            --text-primary: #e2e8f0; /* Light text */
+            --text-secondary: #94a3b8; /* Dimmer text */
+            --accent-primary: #38bdf8; /* Bright blue for highlights */
+            --accent-secondary: #4ade80; /* Green for growth */
+            --accent-danger: #f43f5e; /* Red for negative values */
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: auto;
+            display: grid;
+            gap: 24px;
+        }
+
+        /* --- Header --- */
+        .dashboard-header {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* --- KPI Cards --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .kpi-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .kpi-title {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+        .kpi-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        #totalGrowth.positive { color: var(--accent-secondary); }
+        #totalGrowth.negative { color: var(--accent-danger); }
+        #targetAmount { color: var(--accent-primary); }
+
+        /* --- Progress Card --- */
+        .progress-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+        }
+        .progress-card h3 { margin: 0 0 16px 0; color: var(--text-primary); font-weight: 600; }
+        .progress-bar-container {
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 30px;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), #818cf8);
+            transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .progress-label {
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 8px;
+            color: var(--accent-primary);
+        }
+
+        /* --- Charts and Tables --- */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .chart-container, .table-container {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+        }
+        .chart-container {
+            grid-column: span 12;
+            height: 450px;
+        }
+        .table-container { grid-column: span 12; }
+        @media (min-width: 1024px) {
+            .chart-container:nth-child(1) { grid-column: span 5; }
+            .chart-container:nth-child(2) { grid-column: span 7; }
+        }
+        .table-container h3, .chart-container h3 { margin: 0 0 16px 0; color: var(--text-primary); font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+        tbody tr { transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #2b3a50; }
+        td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: right; }
+        .positive { color: var(--accent-secondary) !important; font-weight: 600; }
+        .negative { color: var(--accent-danger) !important; font-weight: 600; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header"><h1>डॅशबोर्ड</h1><div class="date-filter"><label for="dashboardDate"><strong>तारीख:</strong></label><input type="date" id="dashboardDate"></div></div>
-        <div id="dashboard-content" class="dashboard-grid"></div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>मिशन ५ कोटी - लाईव्ह प्रगती डॅशबोर्ड</h1>
+            <div class="header-info">
+                <span>📅 सुरुवात: <b id="startDate">...</b></span>
+                <span>🏁 अंतिम तारीख: <b id="endDate">...</b></span>
+                <span>⏳ दिवस शिल्लक: <b id="daysLeft">...</b></span>
+            </div>
+        </header>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">सुरुवातीचे आउटस्टँडिंग</div><div class="kpi-value" id="initialOutstanding">₹ 0</div></div>
+            <div class="kpi-card"><div class="kpi-title">एकूण वाढ (Growth)</div><div class="kpi-value" id="totalGrowth">₹ 0</div><div class="kpi-subtitle">नेट (वाटप - वसुली)</div></div>
+            <div class="kpi-card"><div class="kpi-title">सध्याचे आउटस्टँडिंग</div><div class="kpi-value" id="currentOutstanding">₹ 0</div></div>
+            <div class="kpi-card"><div class="kpi-title">🎯 ध्येय (Target)</div><div class="kpi-value" id="targetAmount">₹ 0</div></div>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="progress-card">
+            <h3>ध्येयपूर्ती (%)</h3>
+            <div class="progress-bar-container"><div class="progress-bar" id="goalProgressBar"></div></div>
+            <div class="progress-label" id="goalProgressLabel">0%</div>
+        </div>
+        
+        <!-- Charts and Table Layout -->
+        <div class="grid-layout">
+            <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
+            <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
+            <div class="table-container"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
+                <table id="staffTable">
+                    <thead><tr><th>कर्मचाऱ्याचे नाव</th><th style="text-align: right;">एकूण वाटप</th><th style="text-align: right;">एकूण वसुली</th><th style="text-align: right;">एकूण वाढ (Growth)</th></tr></thead>
+                    <tbody id="staffTableBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
-        // <<< तुमची नवीन आणि चालणारी URL इथे टाकली आहे
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc7mJ9h-f81K7n2NfF94Ff3XzE-C24j8XJbK6lQx6YcK-0J3N9-b2gE1yA/exec";
-        
-        const dateInput = document.getElementById('dashboardDate');
-        const contentDiv = document.getElementById('dashboard-content');
-        let staffChart = null;
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.value = today;
-            fetchDashboardData(today);
-        });
+        // ▼▼▼▼▼ तुमची माहिती इथे भरा ▼▼▼▼▼
+ const API_KEY = 'AIzaSyADpmUttHbznSowws1nk19BmJ7TjktsApU';
+        const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1Mx7s64XhfbzwRNmUJ97Y9pep58UZ5L-yzENA34R23x8/edit?usp=sharing'; // तुमच्या शीटचा आयडी
 
-        dateInput.addEventListener('change', () => { fetchDashboardData(dateInput.value); });
+        const SETTINGS_SHEET = 'Settings';
+        const DAILY_DATA_SHEET = 'DailyData';
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        function fetchDashboardData(date) {
-            contentDiv.innerHTML = `<div class="loader">डेटा लोड होत आहे...</div>`;
-            fetch(`${WEB_APP_URL}?date=${date}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') { renderDashboard(data); } 
-                    else { contentDiv.innerHTML = `<div class="card full-width-card"><p>त्रुटी: ${data.message}</p></div>`; }
-                })
-                .catch(error => { contentDiv.innerHTML = `<div class="card full-width-card"><p>डेटा लोड करताना त्रुटी आली.</p></div>`; });
+        // Function to fetch data from Google Sheets API
+        async function fetchSheetData(sheetName) {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Network error for ${sheetName}`);
+                const data = await response.json();
+                if (!data.values || data.values.length < 2) return [];
+                const headers = data.values[0];
+                const rows = data.values.slice(1);
+                return rows.map(row => {
+                    let obj = {};
+                    headers.forEach((header, index) => { obj[header] = row[index] || '0'; });
+                    return obj;
+                });
+            } catch (error) {
+                console.error(`Error fetching ${sheetName}:`, error);
+                document.body.innerHTML = `<h2 style="color:red; text-align:center;">'${sheetName}' शीटमधून डेटा लोड करण्यात अयशस्वी. कृपया तुमची API Key आणि Sheet Sharing सेटिंग्ज तपासा.</h2>`;
+                return null;
+            }
         }
-        
-        function formatCurrency(value) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value); }
 
-        function renderDashboard(data) {
-            const overall = data.overallKPIs;
-            const daily = data.dailyData;
-            const goalPercentage = parseFloat(overall.goalAchievementPercentage);
-            contentDiv.innerHTML = `
-                <div class="card" id="goal-card"><div class="card-header"><div class="card-icon" style="color:var(--purple); background-color:#f4eef7;"><i class="fas fa-bullseye"></i></div><div class="card-title">ध्येयपूर्ती (Growth)</div></div><div class="kpi-value">${goalPercentage.toFixed(2)}%</div><div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(goalPercentage, 100)}%;"></div></div><div class="kpi-value small">लक्ष्य: ${formatCurrency(overall.target)}</div></div>
-                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-chart-line"></i></div><div class="card-title">एकूण वाढ</div></div><div class="kpi-value">${formatCurrency(overall.growth)}</div></div>
-                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--primary-color); background-color:#eaf3fb;"><i class="fas fa-wallet"></i></div><div class="card-title">सध्याची थकबाकी</div></div><div class="kpi-value">${formatCurrency(overall.currentOutstanding)}</div></div>
-                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-hand-holding-dollar"></i></div><div class="card-title">आजची वसुली</div></div><div class="kpi-value">${formatCurrency(daily.totalRecovery)}</div></div>
-                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--orange); background-color:#fef4e6;"><i class="fas fa-comments-dollar"></i></div><div class="card-title">आजचे वाटप</div></div><div class="kpi-value">${formatCurrency(daily.totalDisbursement)}</div></div>
-                <div class="card full-width-card"><h3>आजची कर्मचारी कामगिरी (${new Date(dateInput.value).toLocaleDateString('mr-IN')})</h3><table><thead><tr><th>कर्मचारी</th><th>नवीन खाती</th><th>वाटप रक्कम</th><th>वसुली रक्कम</th></tr></thead><tbody id="staff-table-body"></tbody></table></div>
-                <div class="card full-width-card"><h3>आजची वसुली (चार्ट)</h3><div id="chart-container"><canvas id="staffPerformanceChart"></canvas></div></div>`;
-            const tableBody = document.getElementById('staff-table-body');
-            const staffPerformance = daily.staffPerformance.filter(s => s.disbursement > 0 || s.recovery > 0);
-            if(staffPerformance.length === 0){ tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">या तारखेसाठी कोणताही डेटा उपलब्ध नाही.</td></tr>`; } 
-            else { staffPerformance.forEach(staff => { tableBody.innerHTML += `<tr><td>${staff.name}</td><td>${staff.newAccounts}</td><td>${formatCurrency(staff.disbursement)}</td><td>${formatCurrency(staff.recovery)}</td></tr>`; }); }
-            createOrUpdateChart(staffPerformance);
+        // Function to format numbers as Indian Rupees currency
+        function formatCurrency(num, compact = false) {
+            const value = parseFloat(String(num).replace(/,/g, '')) || 0;
+            const options = { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 };
+            if (compact) {
+                options.notation = 'compact';
+                options.compactDisplay = 'short';
+            }
+            return new Intl.NumberFormat('en-IN', options).format(value);
         }
-        
-        function createOrUpdateChart(staffData) {
+
+        // Main function to load and render the dashboard
+        async function loadDashboard() {
+            const [settingsData, dailyData] = await Promise.all([
+                fetchSheetData(SETTINGS_SHEET),
+                fetchSheetData(DAILY_DATA_SHEET)
+            ]);
+            
+            if (!settingsData || !dailyData) return; // Stop if data loading failed
+
+            // 1. Process Settings
+            const settings = {};
+            settingsData.forEach(item => { settings[item['Setting Name']] = item['Value']; });
+            const targetGrowth = parseFloat(settings['Target']);
+            const initialOutstanding = parseFloat(settings['Initial Outstanding']);
+            const startDateStr = settings['Start Date'];
+            const endDateStr = settings['End Date'];
+
+            // 2. Process Daily Data
+            const staffPerformance = {};
+            const monthlyData = {};
+
+            dailyData.forEach(row => {
+                const staffName = row['Staff Name'];
+                if (!staffName || staffName.trim() === '') return;
+                const disbursement = parseFloat(row['New Accounts Disbursement']) || 0;
+                const recovery = parseFloat(row['Recovery']) || 0;
+                staffPerformance[staffName] = staffPerformance[staffName] || { disbursement: 0, recovery: 0, growth: 0 };
+                staffPerformance[staffName].disbursement += disbursement;
+                staffPerformance[staffName].recovery += recovery;
+                staffPerformance[staffName].growth += (disbursement - recovery);
+                
+                const dateParts = row['Date'].split('-');
+                if (dateParts.length === 3) {
+                    const monthYear = `01-${dateParts[1]}-${dateParts[2]}`;
+                    monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0 };
+                    monthlyData[monthYear].disbursement += disbursement;
+                    monthlyData[monthYear].recovery += recovery;
+                }
+            });
+
+            const totalDisbursement = Object.values(staffPerformance).reduce((sum, s) => sum + s.disbursement, 0);
+            const totalRecovery = Object.values(staffPerformance).reduce((sum, s) => sum + s.recovery, 0);
+
+            // 3. Calculate Key Metrics
+            const netGrowth = totalDisbursement - totalRecovery;
+            const currentOutstanding = initialOutstanding + netGrowth;
+            const goalAchievedPercentage = targetGrowth > 0 ? (netGrowth / targetGrowth) * 100 : 0;
+            const [day, month, year] = endDateStr.split('-');
+            const endDate = new Date(`${year}-${month}-${day}`);
+            const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+
+            // 4. Update UI Elements
+            document.getElementById('startDate').textContent = startDateStr;
+            document.getElementById('endDate').textContent = endDateStr;
+            document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 0;
+            document.getElementById('initialOutstanding').textContent = formatCurrency(initialOutstanding, true);
+            document.getElementById('targetAmount').textContent = formatCurrency(targetGrowth, true);
+            document.getElementById('totalGrowth').textContent = formatCurrency(netGrowth, true);
+            document.getElementById('totalGrowth').className = `kpi-value ${netGrowth >= 0 ? 'positive' : 'negative'}`;
+            document.getElementById('currentOutstanding').textContent = formatCurrency(currentOutstanding, true);
+            
+            const progressBar = document.getElementById('goalProgressBar');
+            setTimeout(() => { progressBar.style.width = `${Math.min(goalAchievedPercentage, 100)}%`; }, 100);
+            document.getElementById('goalProgressLabel').textContent = `${goalAchievedPercentage.toFixed(2)}%`;
+
+            // 5. Render Charts and Table
+            renderStaffPerformanceChart(staffPerformance);
+            renderMonthlyTrendChart(monthlyData);
+            renderStaffTable(staffPerformance);
+        }
+
+        // Chart and table rendering functions
+        let staffChartInstance, monthlyChartInstance;
+        const chartOptions = {
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } }, x: { ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } } },
+            plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
+        };
+
+        function renderStaffPerformanceChart(staffData) {
             const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
-            const labels = staffData.map(s => s.name);
-            const recoveryData = staffData.map(s => s.recovery);
-            if (staffChart) staffChart.destroy();
-            staffChart = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'वसुली रक्कम (₹)', data: recoveryData, backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 1, borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
+            if (staffChartInstance) staffChartInstance.destroy();
+            
+            const sortedStaff = Object.entries(staffData).sort(([,a],[,b]) => b.growth - a.growth).slice(0, 10); // Top 10
+            const labels = sortedStaff.map(s => s[0]);
+            const growthData = sortedStaff.map(s => s[1].growth);
+
+            staffChartInstance = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels, datasets: [{ label: 'एकूण वाढ (Growth)', data: growthData, backgroundColor: 'rgba(56, 189, 248, 0.6)', borderColor: 'rgba(56, 189, 248, 1)', borderWidth: 1 }] }, 
+                options: chartOptions 
+            });
         }
+        function renderMonthlyTrendChart(monthlyData) {
+            const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
+            
+            const sortedMonths = Object.keys(monthlyData).sort((a,b) => new Date(a) - new Date(b));
+            
+            monthlyChartInstance = new Chart(ctx, { 
+                type: 'line', 
+                data: { 
+                    labels: sortedMonths,
+                    datasets: [
+                        { label: 'एकूण वाटप', data: sortedMonths.map(m => monthlyData[m].disbursement), borderColor: 'var(--accent-primary)', backgroundColor: 'rgba(56, 189, 248, 0.2)', fill: true, tension: 0.3 }, 
+                        { label: 'एकूण वसुली', data: sortedMonths.map(m => monthlyData[m].recovery), borderColor: 'var(--accent-danger)', backgroundColor: 'rgba(244, 63, 94, 0.2)', fill: true, tension: 0.3 }
+                    ] 
+                }, 
+                options: { ...chartOptions, scales: { ...chartOptions.scales, x: { type: 'time', time: { unit: 'month' }, ticks: { color: 'var(--text-secondary)' } } } }
+            });
+        }
+        function renderStaffTable(staffData) {
+            const tableBody = document.getElementById('staffTableBody');
+            tableBody.innerHTML = '';
+            const sortedStaff = Object.entries(staffData).sort(([,a],[,b]) => b.growth - a.growth);
+            for (const [name, data] of sortedStaff) {
+                const growthClass = data.growth > 0 ? 'positive' : (data.growth < 0 ? 'negative' : '');
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${formatCurrency(data.disbursement)}</td>
+                        <td>${formatCurrency(data.recovery)}</td>
+                        <td class="${growthClass}">${formatCurrency(data.growth)}</td>
+                    </tr>`;
+            }
+        }
+
+        // Load the dashboard when the page is ready
+        document.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>
 </html>
