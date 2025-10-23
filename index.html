@@ -3,123 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोजचा डेटा टाका</title>
+    <title>Daily Data Entry Form</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        :root { --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #ecf0f1; --card-background: #ffffff; --text-color: #34495e; --border-color: #bdc3c7; --success-color: #2ecc71; --error-color: #e74c3c; --shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-        .container { width: 100%; max-width: 1200px; background: var(--card-background); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-        h2 { margin: 0; color: var(--primary-color); font-size: 24px; }
-        .date-picker-container { display: flex; align-items: center; gap: 10px; }
-        label { font-weight: 500; color: var(--text-color); }
-        #entryDate { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; color: var(--primary-color); }
-        .table-header { display: grid; grid-template-columns: 2.5fr 1fr 1.5fr 1.5fr 0.5fr; gap: 15px; padding: 10px 15px; font-weight: 600; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); margin-bottom: 10px; }
-        .data-row { display: grid; grid-template-columns: 2.5fr 1fr 1.5fr 1.5fr 0.5fr; gap: 15px; align-items: center; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; }
-        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 14px; box-sizing: border-box; }
-        button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; color: white; }
-        .action-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; }
-        #add-row-btn { background-color: var(--success-color); }
-        #submit-all-btn { background-color: var(--secondary-color); }
-        .delete-btn { background: none; border: none; color: var(--error-color); cursor: pointer; font-size: 22px; }
-        #status-message { margin-top: 20px; text-align: center; font-weight: 500; min-height: 24px; padding: 10px; border-radius: 6px; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.5s linear; }
-        #status-message.success { background-color: #e8f8f2; color: #27ae60; visibility: visible; opacity: 1; }
-        #status-message.error { background-color: #fdeded; color: #c0392b; visibility: visible; opacity: 1; }
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #1c3d5a; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+        #message { text-align: center; margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header"><h2>रोजचा डेटा टाका</h2><div class="date-picker-container"><label for="entryDate">तारीख:</label><input type="date" id="entryDate"></div></div>
-        <div class="table-header"><div>कर्मचारी</div><div>नवीन खाती</div><div>वाटप रक्कम</div><div>वसुली रक्कम</div><div>कृती</div></div>
-        <div id="data-rows-container"></div>
-        <div class="action-buttons"><button id="add-row-btn">नवीन कर्मचारी जोडा</button><button id="submit-all-btn">सर्व डेटा जमा करा</button></div>
-        <div id="status-message"></div>
+        <h2>रोजचा डेटा टाका</h2>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="staffName">कर्मचाऱ्याचे नाव:</label>
+                <select id="staffName" name="staffName" required>
+                    <!-- Staff names will be loaded here from Google Sheet -->
+                    <option value="">नाव निवडा...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="newDisbursement">नवीन वाटप (रक्कम):</label>
+                <input type="number" id="newDisbursement" name="newDisbursement" required>
+            </div>
+            <div class="form-group">
+                <label for="recoveryAmount">वसुली (रक्कम):</label>
+                <input type="number" id="recoveryAmount" name="recoveryAmount" required>
+            </div>
+            <button type="submit">सबमिट करा</button>
+        </form>
+        <div id="message"></div>
     </div>
-    <template id="data-row-template">
-        <div class="data-row">
-            <div><select class="staffName"><option value="">निवडा</option></select></div>
-            <div><input type="number" class="newAccounts" placeholder="0"></div>
-            <div><input type="number" class="disbursement" placeholder="0"></div>
-            <div><input type="number" class="recovery" placeholder="0"></div>
-            <div><button class="delete-btn">🗑️</button></div>
-        </div>
-    </template>
+
     <script>
-        // <<< तुमची नवीन आणि चालणारी URL इथे टाकली आहे
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc7mJ9h-f81K7n2NfF94Ff3XzE-C24j8XJbK6lQx6YcK-0J3N9-b2gE1yA/exec";
+        // स्टेप १ मध्ये StaffMaster शीट साठी बनवलेली CSV URL इथे टाका
+        const STAFF_MASTER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzuRc4paY-dZ5cO9uoj09AV3jO14-VULxHInuxd4y9Cn441mWhBKT0iPHQf3RO1Q4w8qbfDbAxLvjc/pub?gid=1254007896&single=true&output=csv'; 
         
-        const rowsContainer = document.getElementById('data-rows-container');
-        const entryDateInput = document.getElementById('entryDate');
-        const statusMessage = document.getElementById('status-message');
-        const rowTemplate = document.getElementById('data-row-template');
-        let staffNamesList = [];
-        
+        // स्टेप २ मध्ये Apps Script Deploy करून मिळालेली URL इथे टाका
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQxCoByP6gj9Etv71lXC3bPg75OarhsmLm6u-AvFcgsWa_ITI75iNDDrq_D7xHgwCt/exec';
+
+        // Load staff names into the dropdown
         document.addEventListener('DOMContentLoaded', () => {
-            entryDateInput.valueAsDate = new Date();
-             fetch(WEB_APP_URL)
-                .then(res => res.json())
+            fetch(STAFF_MASTER_URL)
+                .then(response => response.text())
                 .then(data => {
-                    if (data.status === 'success' && data.dailyData.staffPerformance) {
-                        staffNamesList = data.dailyData.staffPerformance.map(staff => staff.name);
-                        addNewRow();
-                    } else {
-                        showStatus('कर्मचाऱ्यांची यादी लोड होऊ शकली नाही.', 'error');
-                    }
-                }).catch(() => showStatus('त्रुटी!', 'error'));
+                    const staffSelect = document.getElementById('staffName');
+                    const rows = data.split('\n').slice(1); // Skip header row
+                    rows.forEach(row => {
+                        const cols = row.split(',');
+                        if (cols[0]) { // Ensure name exists
+                            const option = document.createElement('option');
+                            option.value = cols[0].trim();
+                            option.textContent = cols[0].trim();
+                            staffSelect.appendChild(option);
+                        }
+                    });
+                });
         });
 
-        const addNewRow = () => {
-            const newRow = rowTemplate.content.cloneNode(true);
-            const select = newRow.querySelector('.staffName');
-            staffNamesList.forEach(name => select.add(new Option(name, name)));
-            rowsContainer.appendChild(newRow);
-        };
+        const form = document.getElementById('dataForm');
+        const messageDiv = document.getElementById('message');
 
-        document.getElementById('add-row-btn').addEventListener('click', addNewRow);
-        document.getElementById('submit-all-btn').addEventListener('click', submitData);
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            messageDiv.textContent = 'डेटा पाठवत आहे...';
+            messageDiv.className = '';
 
-        rowsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-btn')) e.target.closest('.data-row').remove();
-        });
+            const formData = {
+                staffName: document.getElementById('staffName').value,
+                newDisbursement: document.getElementById('newDisbursement').value,
+                recoveryAmount: document.getElementById('recoveryAmount').value
+            };
 
-        function submitData() {
-            const records = [];
-            const rows = rowsContainer.querySelectorAll('.data-row');
-            let isValid = true;
-            rows.forEach(row => {
-                const staffName = row.querySelector('.staffName').value;
-                const newAccounts = row.querySelector('.newAccounts').value || 0;
-                const disbursement = row.querySelector('.disbursement').value || 0;
-                const recovery = row.querySelector('.recovery').value || 0;
-                if (!staffName) { isValid = false; return; }
-                records.push({ staffName, newAccounts, disbursement, recovery });
-            });
-            if (!isValid) { showStatus('कृपया सर्व कर्मचाऱ्यांची निवड करा.', 'error'); return; }
-            if (records.length === 0) { showStatus('कृपया किमान एक नोंद करा.', 'error'); return; }
-            const payload = { date: entryDateInput.value, records: records };
-            showStatus('जमा होत आहे...', 'success');
-            fetch(WEB_APP_URL, {
+            fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload),
+                body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
             })
-            .then(res => res.json())
+            .then(response => response.json())
             .then(data => {
-                if(data.status === 'success'){
-                    showStatus('डेटा यशस्वीरित्या जमा झाला!', 'success');
-                    rowsContainer.innerHTML = '';
-                    addNewRow();
+                if(data.status === 'success') {
+                    messageDiv.textContent = 'डेटा यशस्वीरित्या सेव्ह झाला!';
+                    messageDiv.className = 'success';
+                    form.reset();
                 } else {
-                    showStatus(`त्रुटी: ${data.message}`, 'error');
+                    throw new Error(data.message);
                 }
-            }).catch(() => showStatus('सबमिट करताना त्रुटी आली.', 'error'));
-        }
-
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = type;
-            setTimeout(() => statusMessage.className = '', 4000);
-        }
+            })
+            .catch(error => {
+                messageDiv.textContent = 'त्रुटी: ' + error.message;
+                messageDiv.className = 'error';
+            });
+        });
     </script>
 </body>
 </html>
