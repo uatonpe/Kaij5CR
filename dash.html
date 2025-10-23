@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>मिशन 5 CR - लाईव्ह डॅशबोर्ड</title>
     
-    <!-- Google Fonts for better typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js library for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <style>
-        /* CSS code is embedded here */
         :root {
             --bg-color: #f1f5f9;
             --card-color: #ffffff;
@@ -35,13 +32,15 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0;
-            padding: 24px;
+            padding: 16px; /* Reduced padding for mobile */
+        }
+        @media (min-width: 768px) {
+            body { padding: 24px; }
         }
         body.modal-open { overflow: hidden; }
 
         .dashboard-container { max-width: 1600px; margin: auto; display: grid; gap: 24px; }
 
-        /* --- Header & Date Filter --- */
         .dashboard-header {
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
@@ -51,7 +50,7 @@
         }
         .dashboard-header h1 {
             margin: 0;
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
             font-weight: 700;
             background: linear-gradient(90deg, var(--accent-primary), #a78bfa);
             -webkit-background-clip: text;
@@ -61,7 +60,7 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 32px;
+            gap: 16px 32px;
             margin-top: 16px;
             color: var(--text-secondary);
             font-size: 0.9rem;
@@ -70,17 +69,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             margin-top: 20px;
             flex-wrap: wrap;
         }
-        .date-filter-container label { font-size: 0.9rem; color: var(--text-secondary); }
         .date-filter-container input[type="date"], .date-filter-container button {
             padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             background-color: #f8fafc;
-            font-family: var(--font-family);
         }
         .date-filter-container button {
             background-color: var(--accent-primary);
@@ -88,14 +85,11 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: background-color 0.2s;
         }
-        .date-filter-container button:hover { background-color: #0284c7; }
 
-        /* --- KPI & Performer Grids --- */
         .kpi-grid, .performer-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 24px;
         }
         .kpi-card {
@@ -110,84 +104,55 @@
             box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
         }
         .clickable { cursor: pointer; }
-        .kpi-title, .performer-card h3 {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-            margin: 0 0 8px 0;
-        }
-        .kpi-value { font-size: 2.5rem; font-weight: 700; }
+        .kpi-title { font-size: 1rem; color: var(--text-secondary); }
+        .kpi-value { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; }
         .kpi-subtitle { font-size: 0.8rem; color: var(--text-secondary); }
-        #totalGrowth.positive, .positive { color: var(--accent-secondary); }
-        #totalGrowth.negative, .negative { color: var(--accent-danger); }
+        .positive { color: var(--accent-secondary) !important; font-weight: 600; }
+        .negative { color: var(--accent-danger) !important; font-weight: 600; }
         #targetAmount { color: var(--accent-primary); }
 
-        /* Performer Cards Specifics */
+        .performer-card h3 { font-size: 1rem; color: var(--text-secondary); margin: 0 0 8px 0; }
         .performer-card ol { list-style: none; padding: 0; margin: 0; }
         .performer-card li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
         .performer-card li:last-child { border-bottom: none; }
-        .performer-card span:first-child { color: var(--text-primary); font-weight: 600; }
         .performer-card span:last-child { font-weight: 700; }
-        .performer-card a {
-            display: block;
-            margin-top: 16px;
-            text-align: right;
-            color: var(--accent-primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .performer-card a:hover { text-decoration: underline; }
+        .performer-card a { display: block; margin-top: 16px; text-align: right; color: var(--accent-primary); text-decoration: none; font-weight: 600; }
 
-        /* --- Progress Card, Charts, Table (No changes needed here) --- */
         .progress-card { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; }
-        .progress-card h3 { margin: 0 0 16px 0; }
         .progress-bar-container { background-color: var(--border-color); border-radius: 10px; overflow: hidden; height: 30px; }
         .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-primary), #818cf8); transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
         .progress-label { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 8px; color: var(--accent-primary); }
+        
         .grid-layout { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
         .chart-container, .table-container { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; }
         .chart-container { grid-column: span 12; height: 450px; }
-        .table-container { grid-column: span 12; }
+        .table-container { grid-column: span 12; overflow-x: auto; /* For mobile table scroll */ -webkit-overflow-scrolling: touch; }
         @media (min-width: 1024px) {
             .chart-container:nth-child(1) { grid-column: span 5; }
             .chart-container:nth-child(2) { grid-column: span 7; }
         }
-        .table-container h3, .chart-container h3 { margin: 0 0 16px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; /* Prevent table squishing on mobile */ }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; /* Prevent text wrapping in table */ }
         tbody tr:hover { background-color: #f8fafc; }
         td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: right; }
 
-        /* --- Modal Styles --- */
+        /* Modal Styles */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background-color: rgba(15, 23, 42, 0.7);
-            display: none; /* Initially hidden */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; backdrop-filter: blur(5px);
         }
         .modal-content {
-            background-color: var(--card-color);
-            padding: 32px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background-color: var(--card-color); padding: 24px; border-radius: 16px;
+            width: 90%; max-width: 600px; max-height: 80vh;
+            display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-header h2 { margin: 0; font-size: 1.5rem; }
-        .modal-close-btn { font-size: 2rem; font-weight: bold; color: var(--text-secondary); cursor: pointer; border: none; background: none; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h2 { margin: 0; font-size: 1.25rem; }
+        .modal-close-btn { font-size: 2rem; color: var(--text-secondary); cursor: pointer; border: none; background: none; }
         .modal-body { overflow-y: auto; }
-        .modal-body table { width: 100%; }
-        .modal-body th { background-color: #f8fafc; }
     </style>
 </head>
 <body>
@@ -212,9 +177,9 @@
 
         <!-- KPI Grid -->
         <div class="kpi-grid">
-            <div class="kpi-card"><div class="kpi-title">सुरुवातीचे आउटस्टँडिंग</div><div class="kpi-value" id="initialOutstanding">₹ 0</div></div>
-            <div class="kpi-card clickable" id="kpiGrowthCard"><div class="kpi-title">एकूण वाढ (Growth) ▾</div><div class="kpi-value" id="totalGrowth">₹ 0</div><div class="kpi-subtitle">नेट (वाटप - वसुली)</div></div>
-            <div class="kpi-card"><div class="kpi-title">सध्याचे आउटस्टँडिंग</div><div class="kpi-value" id="currentOutstanding">₹ 0</div></div>
+            <div class="kpi-card clickable" id="kpiInitialCard"><div class="kpi-title">सुरुवातीचे आउटस्टँडिंग ▾</div><div class="kpi-value" id="initialOutstanding">₹ 0</div></div>
+            <div class="kpi-card clickable" id="kpiGrowthCard"><div class="kpi-title">निव्वळ वाढ (Growth) ▾</div><div class="kpi-value" id="totalGrowth">₹ 0</div><div class="kpi-subtitle">निव्वळ (वाटप - वसुली)</div></div>
+            <div class="kpi-card clickable" id="kpiCurrentCard"><div class="kpi-title">सध्याचे आउटस्टँडिंग ▾</div><div class="kpi-value" id="currentOutstanding">₹ 0</div></div>
             <div class="kpi-card"><div class="kpi-title">🎯 ध्येय (Target)</div><div class="kpi-value" id="targetAmount">₹ 0</div></div>
         </div>
         
@@ -232,20 +197,18 @@
             </div>
         </div>
 
-        <!-- Progress Card -->
         <div class="progress-card">
             <h3>ध्येयपूर्ती (%)</h3>
             <div class="progress-bar-container"><div class="progress-bar" id="goalProgressBar"></div></div>
             <div class="progress-label" id="goalProgressLabel">0%</div>
         </div>
         
-        <!-- Charts and Table Layout -->
         <div class="grid-layout">
             <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
             <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
             <div class="table-container" id="staffTable"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
                 <table>
-                    <thead><tr><th>कर्मचाऱ्याचे नाव</th><th style="text-align: right;">एकूण वाटप</th><th style="text-align: right;">एकूण वसुली</th><th style="text-align: right;">एकूण वाढ (Growth)</th></tr></thead>
+                    <thead><tr><th>कर्मचाऱ्याचे नाव</th><th>एकूण वाटप</th><th>एकूण वसुली</th><th>एकूण वाढ (Growth)</th></tr></thead>
                     <tbody id="staffTableBody"></tbody>
                 </table>
             </div>
@@ -259,9 +222,7 @@
                 <h2 id="modalTitle">तपशील</h2>
                 <button id="closeModalBtn" class="modal-close-btn">&times;</button>
             </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Content will be injected by JavaScript -->
-            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
@@ -272,62 +233,64 @@
 
         const SETTINGS_SHEET = 'Settings';
         const DAILY_DATA_SHEET = 'DailyData';
+        const INITIAL_OUTSTANDING_SHEET = 'InitialOutstanding'; // !! महत्वाची सूचना: ही नवीन शीट तयार करा !!
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        // Global variables to store data
         let _allDailyData = [];
+        let _initialStaffData = {};
         let _settings = {};
         let _currentStaffPerformance = {};
+        let _currentStaffOutstanding = {};
         
-        // Function to fetch data from Google Sheets API
         async function fetchSheetData(sheetName) {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}`;
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`Network error for ${sheetName}`);
+                if (!response.ok) throw new Error(`Network error for '${sheetName}'`);
                 const data = await response.json();
-                if (!data.values || data.values.length < 2) return [];
-                const headers = data.values[0];
+                if (!data.values || data.values.length < 2) {
+                    console.warn(`Sheet '${sheetName}' is empty or has no data.`);
+                    return [];
+                }
+                const headers = data.values[0].map(h => h.trim());
                 const rows = data.values.slice(1);
                 return rows.map(row => {
                     let obj = {};
                     headers.forEach((header, index) => { obj[header] = row[index] || '0'; });
-                    // Add a proper Date object for sorting/filtering
-                    const dateParts = obj['Date'] ? obj['Date'].split('-') : [];
-                    if (dateParts.length === 3) {
-                       obj.dateObj = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
-                    } else {
-                       obj.dateObj = null;
+                    if(obj['Date']) {
+                        const dateParts = obj['Date'].split('-');
+                        if (dateParts.length === 3) obj.dateObj = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
                     }
                     return obj;
                 });
             } catch (error) {
                 console.error(`Error fetching ${sheetName}:`, error);
-                document.body.innerHTML = `<h2 style="color:red; text-align:center;">'${sheetName}' शीटमधून डेटा लोड करण्यात अयशस्वी. कृपया तुमची API Key आणि Sheet Sharing सेटिंग्ज तपासा.</h2>`;
+                document.body.innerHTML = `<h2 style="color:red; text-align:center;">'${sheetName}' शीटमधून डेटा लोड करण्यात अयशस्वी. कृपया तुमची API Key, Sheet ID आणि Sheet Sharing सेटिंग्ज तपासा.</h2>`;
                 return null;
             }
         }
 
-        function formatCurrency(num, compact = false) {
-            const value = parseFloat(String(num).replace(/,/g, '')) || 0;
-            const options = { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 };
-            if (compact) {
-                options.notation = 'compact';
-                options.compactDisplay = 'short';
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(parseFloat(num) || 0);
+        }
+        
+        function formatCurrencyPrecise(num) {
+            const value = parseFloat(num) || 0;
+            if (Math.abs(value) >= 10000000) {
+                return `₹ ${(value / 10000000).toFixed(2)} Cr`;
             }
-            return new Intl.NumberFormat('en-IN', options).format(value);
+            if (Math.abs(value) >= 100000) {
+                return `₹ ${(value / 100000).toFixed(2)} L`;
+            }
+            return formatCurrency(value);
         }
 
-        // Main function to filter and render all dashboard components
         function filterAndRenderDashboard(startDate, endDate) {
             const filteredData = _allDailyData.filter(row => {
                 if (!row.dateObj) return false;
-                const isAfterStart = startDate ? row.dateObj >= startDate : true;
-                const isBeforeEnd = endDate ? row.dateObj <= endDate : true;
-                return isAfterStart && isBeforeEnd;
+                return (!startDate || row.dateObj >= startDate) && (!endDate || row.dateObj <= endDate);
             });
 
-            // 1. Process Data
             const staffPerformance = {};
             const monthlyData = {};
 
@@ -341,42 +304,42 @@
                 staffPerformance[staffName].recovery += recovery;
                 staffPerformance[staffName].growth += (disbursement - recovery);
                 
-                const monthYear = row.dateObj.toISOString().slice(0, 7); // YYYY-MM format
+                const monthYear = row.dateObj.toISOString().slice(0, 7);
                 monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0 };
                 monthlyData[monthYear].disbursement += disbursement;
                 monthlyData[monthYear].recovery += recovery;
             });
 
-            // Store for modal access
+            const allStaffNames = new Set([...Object.keys(_initialStaffData), ...Object.keys(staffPerformance)]);
+            _currentStaffOutstanding = {};
+            allStaffNames.forEach(name => {
+                const initial = _initialStaffData[name] || 0;
+                const growth = (staffPerformance[name] || { growth: 0 }).growth;
+                _currentStaffOutstanding[name] = initial + growth;
+            });
             _currentStaffPerformance = staffPerformance;
-
+            
             const totalDisbursement = Object.values(staffPerformance).reduce((sum, s) => sum + s.disbursement, 0);
             const totalRecovery = Object.values(staffPerformance).reduce((sum, s) => sum + s.recovery, 0);
-
-            // 2. Calculate Key Metrics
-            const initialOutstanding = parseFloat(_settings['Initial Outstanding']);
             const netGrowth = totalDisbursement - totalRecovery;
-            const currentOutstanding = initialOutstanding + netGrowth;
+            const totalInitialOutstanding = parseFloat(_settings['Initial Outstanding']);
+            const currentOutstanding = totalInitialOutstanding + netGrowth;
             const targetGrowth = parseFloat(_settings['Target']);
             const goalAchievedPercentage = targetGrowth > 0 ? (netGrowth / targetGrowth) * 100 : 0;
 
-            // 3. Update UI Elements
-            document.getElementById('totalGrowth').textContent = formatCurrency(netGrowth, true);
+            document.getElementById('totalGrowth').textContent = formatCurrencyPrecise(netGrowth);
             document.getElementById('totalGrowth').className = `kpi-value ${netGrowth >= 0 ? 'positive' : 'negative'}`;
-            document.getElementById('currentOutstanding').textContent = formatCurrency(currentOutstanding, true);
+            document.getElementById('currentOutstanding').textContent = formatCurrencyPrecise(currentOutstanding);
             
-            const progressBar = document.getElementById('goalProgressBar');
-            progressBar.style.width = `${Math.min(goalAchievedPercentage, 100)}%`;
+            document.getElementById('goalProgressBar').style.width = `${Math.min(goalAchievedPercentage, 100)}%`;
             document.getElementById('goalProgressLabel').textContent = `${goalAchievedPercentage.toFixed(2)}%`;
 
-            // 4. Render Charts, Tables, and Performer Cards
             renderStaffPerformanceChart(staffPerformance);
             renderMonthlyTrendChart(monthlyData);
             renderStaffTable(staffPerformance);
             renderPerformerCards(staffPerformance);
         }
         
-        // All rendering functions
         let staffChartInstance, monthlyChartInstance;
         const chartOptions = {
             maintainAspectRatio: false,
@@ -400,128 +363,104 @@
             const sortedMonths = Object.keys(monthlyData).sort();
             monthlyChartInstance = new Chart(ctx, { 
                 type: 'line', 
-                data: { 
-                    labels: sortedMonths,
-                    datasets: [
-                        { label: 'एकूण वाटप', data: sortedMonths.map(m => monthlyData[m].disbursement), borderColor: 'var(--accent-primary)', backgroundColor: 'rgba(14, 165, 233, 0.2)', fill: true, tension: 0.3 }, 
-                        { label: 'एकूण वसुली', data: sortedMonths.map(m => monthlyData[m].recovery), borderColor: 'var(--accent-danger)', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.3 }
-                    ] 
-                }, 
-                options: { ...chartOptions, scales: { ...chartOptions.scales, x: { type: 'time', time: { unit: 'month', displayFormats: { month: 'MMM yyyy' }}, ticks: { color: 'var(--text-secondary)' } } } }
+                data: { labels: sortedMonths, datasets: [
+                    { label: 'एकूण वाटप', data: sortedMonths.map(m => monthlyData[m].disbursement), borderColor: 'var(--accent-primary)', backgroundColor: 'rgba(14, 165, 233, 0.2)', fill: true, tension: 0.3 }, 
+                    { label: 'एकूण वसुली', data: sortedMonths.map(m => monthlyData[m].recovery), borderColor: 'var(--accent-danger)', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.3 }
+                ]}, 
+                options: { ...chartOptions, scales: { ...chartOptions.scales, x: { type: 'time', time: { unit: 'month', displayFormats: { month: 'MMM yy' }}, ticks: { color: 'var(--text-secondary)' }}}}
             });
         }
         function renderStaffTable(staffData) {
             const tableBody = document.getElementById('staffTableBody');
             tableBody.innerHTML = '';
-            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth);
-            sortedStaff.forEach(data => {
+            Object.values(staffData).sort((a,b) => b.growth - a.growth).forEach(data => {
                 const growthClass = data.growth > 0 ? 'positive' : (data.growth < 0 ? 'negative' : '');
-                tableBody.innerHTML += `
-                    <tr>
-                        <td>${data.name}</td>
-                        <td>${formatCurrency(data.disbursement)}</td>
-                        <td>${formatCurrency(data.recovery)}</td>
-                        <td class="${growthClass}">${formatCurrency(data.growth)}</td>
-                    </tr>`;
+                tableBody.innerHTML += `<tr><td>${data.name}</td><td>${formatCurrency(data.disbursement)}</td><td>${formatCurrency(data.recovery)}</td><td class="${growthClass}">${formatCurrency(data.growth)}</td></tr>`;
             });
         }
         function renderPerformerCards(staffData) {
+            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth);
             const topList = document.getElementById('topPerformersList');
             const lowList = document.getElementById('lowPerformersList');
-            topList.innerHTML = '';
-            lowList.innerHTML = '';
-
-            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth);
-            
-            // Top 3
-            sortedStaff.slice(0, 3).forEach(staff => {
-                topList.innerHTML += `<li><span>${staff.name}</span><span class="positive">${formatCurrency(staff.growth)}</span></li>`;
-            });
-
-            // Bottom 3
-            sortedStaff.slice(-3).reverse().forEach(staff => {
-                const growthClass = staff.growth >= 0 ? 'positive' : 'negative';
-                lowList.innerHTML += `<li><span>${staff.name}</span><span class="${growthClass}">${formatCurrency(staff.growth)}</span></li>`;
-            });
+            topList.innerHTML = sortedStaff.slice(0, 3).map(s => `<li><span>${s.name}</span><span class="positive">${formatCurrency(s.growth)}</span></li>`).join('');
+            lowList.innerHTML = sortedStaff.slice(-3).reverse().map(s => `<li><span>${s.name}</span><span class="${s.growth >= 0 ? 'positive' : 'negative'}">${formatCurrency(s.growth)}</span></li>`).join('');
         }
         
-        // Modal functions
-        function openModal(title, data) {
-            const modal = document.getElementById('detailsModal');
+        function openModal(title, data, valueType = 'growth') {
             document.getElementById('modalTitle').textContent = title;
             const modalBody = document.getElementById('modalBody');
+            let tableHTML = `<table><thead><tr><th>कर्मचारी</th><th style="text-align:right;">रक्कम</th></tr></thead><tbody>`;
             
-            let tableHTML = `<table><thead><tr><th>कर्मचारी</th><th style="text-align:right;">एकूण वाढ (Growth)</th></tr></thead><tbody>`;
-            const sortedData = Object.values(data).sort((a, b) => b.growth - a.growth);
-            sortedData.forEach(staff => {
-                 const growthClass = staff.growth >= 0 ? 'positive' : 'negative';
-                 tableHTML += `<tr><td>${staff.name}</td><td class="${growthClass}" style="text-align:right;">${formatCurrency(staff.growth)}</td></tr>`;
-            });
+            const sortedData = Object.entries(data).sort(([,a], [,b]) => b - a);
+
+            for (const [name, value] of sortedData) {
+                 const valueClass = valueType === 'growth' ? (value >= 0 ? 'positive' : 'negative') : '';
+                 tableHTML += `<tr><td>${name}</td><td class="${valueClass}" style="text-align:right;">${formatCurrency(value)}</td></tr>`;
+            }
             tableHTML += `</tbody></table>`;
             
             modalBody.innerHTML = tableHTML;
-            modal.style.display = 'flex';
+            document.getElementById('detailsModal').style.display = 'flex';
             document.body.classList.add('modal-open');
         }
-
         function closeModal() {
-            const modal = document.getElementById('detailsModal');
-            modal.style.display = 'none';
+            document.getElementById('detailsModal').style.display = 'none';
             document.body.classList.remove('modal-open');
         }
 
-        // Initial loading function
         async function loadDashboard() {
-            const [settingsData, dailyData] = await Promise.all([
+            const [settingsData, dailyData, initialData] = await Promise.all([
                 fetchSheetData(SETTINGS_SHEET),
-                fetchSheetData(DAILY_DATA_SHEET)
+                fetchSheetData(DAILY_DATA_SHEET),
+                fetchSheetData(INITIAL_OUTSTANDING_SHEET)
             ]);
             
-            if (!settingsData || !dailyData) return;
+            if (!settingsData || !dailyData || !initialData) return;
             
-            _allDailyData = dailyData.filter(row => row.dateObj); // Store all data globally
+            _allDailyData = dailyData.filter(row => row.dateObj);
             settingsData.forEach(item => { _settings[item['Setting Name']] = item['Value']; });
+            initialData.forEach(item => { _initialStaffData[item['Staff Name']] = parseFloat(item['Outstanding Amount']) || 0; });
             
-            // Populate Static Header Info
             document.getElementById('startDate').textContent = _settings['Start Date'];
             document.getElementById('endDate').textContent = _settings['End Date'];
-            document.getElementById('initialOutstanding').textContent = formatCurrency(parseFloat(_settings['Initial Outstanding']), true);
-            document.getElementById('targetAmount').textContent = formatCurrency(parseFloat(_settings['Target']), true);
+            document.getElementById('initialOutstanding').textContent = formatCurrencyPrecise(_settings['Initial Outstanding']);
+            document.getElementById('targetAmount').textContent = formatCurrencyPrecise(_settings['Target']);
+            
             const [day, month, year] = _settings['End Date'].split('-');
-            const endDate = new Date(`${year}-${month}-${day}`);
-            const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
-            document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 0;
+            const endDateObj = new Date(`${year}-${month}-${day}`);
+            document.getElementById('daysLeft').textContent = Math.max(0, Math.ceil((endDateObj - new Date()) / (1000 * 60 * 60 * 24)));
             
-            // Set default date filter values to the full range of data
             const dates = _allDailyData.map(d => d.dateObj).filter(Boolean);
-            const minDate = new Date(Math.min(...dates));
-            const maxDate = new Date(Math.max(...dates));
-            document.getElementById('startDateFilter').value = minDate.toISOString().split('T')[0];
-            document.getElementById('endDateFilter').value = maxDate.toISOString().split('T')[0];
+            if (dates.length > 0) {
+                const minDate = new Date(Math.min(...dates));
+                const maxDate = new Date(Math.max(...dates));
+                document.getElementById('startDateFilter').valueAsDate = minDate;
+                document.getElementById('endDateFilter').valueAsDate = maxDate;
+                filterAndRenderDashboard(minDate, maxDate);
+            } else {
+                filterAndRenderDashboard(null, null); // Render with empty data if no dates found
+            }
             
-            // Initial render
-            filterAndRenderDashboard(minDate, maxDate);
-            
-            // Setup Event Listeners
             document.getElementById('filterBtn').addEventListener('click', () => {
                 const start = document.getElementById('startDateFilter').value;
                 const end = document.getElementById('endDateFilter').value;
                 const startDate = start ? new Date(start) : null;
                 const endDate = end ? new Date(end) : null;
-                if(endDate) endDate.setHours(23, 59, 59); // Include full end day
+                if(endDate) endDate.setHours(23, 59, 59);
                 filterAndRenderDashboard(startDate, endDate);
             });
             
+            document.getElementById('kpiInitialCard').addEventListener('click', () => openModal('सुरुवातीचे आउटस्टँडिंग - तपशील', _initialStaffData, 'amount'));
             document.getElementById('kpiGrowthCard').addEventListener('click', () => {
-                openModal('एकूण वाढ (Growth) - तपशील', _currentStaffPerformance);
+                const growthData = Object.fromEntries(Object.values(_currentStaffPerformance).map(s => [s.name, s.growth]));
+                openModal('निव्वळ वाढ (Growth) - तपशील', growthData, 'growth');
             });
+            document.getElementById('kpiCurrentCard').addEventListener('click', () => openModal('सध्याचे आउटस्टँडिंग - तपशील', _currentStaffOutstanding, 'amount'));
+
             document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-            document.getElementById('detailsModal').addEventListener('click', (e) => {
-                if(e.target.id === 'detailsModal') closeModal(); // Close if clicked on overlay
-            });
+            document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') closeModal(); });
         }
 
-        // Load the dashboard when the page is ready
         document.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>
