@@ -45,27 +45,23 @@
         </div>
     </template>
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxeJWTJiARN__wl0HGL_tCsX59NgrMAC_NUEbDkRaisHv6OMWegvbi-Z0Ni5ZdylJ6S/exec"; // तुमची तीच URL इथे टाका जी डॅशबोर्डमध्ये टाकली आहे.
+        // <<< तुमची नवीन आणि चालणारी URL इथे टाकली आहे
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc7mJ9h-f81K7n2NfF94Ff3XzE-C24j8XJbK6lQx6YcK-0J3N9-b2gE1yA/exec";
         
         const rowsContainer = document.getElementById('data-rows-container');
         const entryDateInput = document.getElementById('entryDate');
         const statusMessage = document.getElementById('status-message');
         const rowTemplate = document.getElementById('data-row-template');
-        
         let staffNamesList = [];
         
-        // Fetch staff names by calling the main doGet function without any parameters
-        // This is a workaround, a dedicated getStaff action would be better.
-        // For now, it will fetch all dashboard data just to get the staff list.
         document.addEventListener('DOMContentLoaded', () => {
             entryDateInput.valueAsDate = new Date();
              fetch(WEB_APP_URL)
                 .then(res => res.json())
                 .then(data => {
-                    // Extract staff names from the daily performance object
                     if (data.status === 'success' && data.dailyData.staffPerformance) {
                         staffNamesList = data.dailyData.staffPerformance.map(staff => staff.name);
-                        addNewRow(); // Add first row
+                        addNewRow();
                     } else {
                         showStatus('कर्मचाऱ्यांची यादी लोड होऊ शकली नाही.', 'error');
                     }
@@ -90,7 +86,6 @@
             const records = [];
             const rows = rowsContainer.querySelectorAll('.data-row');
             let isValid = true;
-
             rows.forEach(row => {
                 const staffName = row.querySelector('.staffName').value;
                 const newAccounts = row.querySelector('.newAccounts').value || 0;
@@ -99,14 +94,10 @@
                 if (!staffName) { isValid = false; return; }
                 records.push({ staffName, newAccounts, disbursement, recovery });
             });
-
             if (!isValid) { showStatus('कृपया सर्व कर्मचाऱ्यांची निवड करा.', 'error'); return; }
             if (records.length === 0) { showStatus('कृपया किमान एक नोंद करा.', 'error'); return; }
-
             const payload = { date: entryDateInput.value, records: records };
-            
             showStatus('जमा होत आहे...', 'success');
-            
             fetch(WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload),

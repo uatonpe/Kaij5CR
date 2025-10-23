@@ -8,12 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-        :root {
-            --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #f4f7f9;
-            --card-background: #ffffff; --text-color: #34495e; --header-color: #2c3e50;
-            --green: #2ecc71; --orange: #f39c12; --purple: #9b59b6; --red: #e74c3c;
-            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
+        :root { --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #f4f7f9; --card-background: #ffffff; --text-color: #34495e; --header-color: #2c3e50; --green: #2ecc71; --orange: #f39c12; --purple: #9b59b6; --red: #e74c3c; --shadow: 0 5px 15px rgba(0, 0, 0, 0.08); }
         body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; color: var(--text-color); }
         .container { max-width: 1400px; margin: auto; }
         .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px; }
@@ -42,20 +37,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>डॅशबोर्ड</h1>
-            <div class="date-filter">
-                <label for="dashboardDate"><strong>तारीख:</strong></label>
-                <input type="date" id="dashboardDate">
-            </div>
-        </div>
-        <div id="dashboard-content" class="dashboard-grid">
-            <!-- Data will be loaded here -->
-        </div>
+        <div class="header"><h1>डॅशबोर्ड</h1><div class="date-filter"><label for="dashboardDate"><strong>तारीख:</strong></label><input type="date" id="dashboardDate"></div></div>
+        <div id="dashboard-content" class="dashboard-grid"></div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxeJWTJiARN__wl0HGL_tCsX59NgrMAC_NUEbDkRaisHv6OMWegvbi-Z0Ni5ZdylJ6S/exec"; // तुमची नवीन URL इथे टाका
+        // <<< तुमची नवीन आणि चालणारी URL इथे टाकली आहे
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc7mJ9h-f81K7n2NfF94Ff3XzE-C24j8XJbK6lQx6YcK-0J3N9-b2gE1yA/exec";
         
         const dateInput = document.getElementById('dashboardDate');
         const contentDiv = document.getElementById('dashboard-content');
@@ -67,95 +55,37 @@
             fetchDashboardData(today);
         });
 
-        dateInput.addEventListener('change', () => {
-            fetchDashboardData(dateInput.value);
-        });
+        dateInput.addEventListener('change', () => { fetchDashboardData(dateInput.value); });
 
         function fetchDashboardData(date) {
             contentDiv.innerHTML = `<div class="loader">डेटा लोड होत आहे...</div>`;
-            
             fetch(`${WEB_APP_URL}?date=${date}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === 'success') {
-                        renderDashboard(data);
-                    } else {
-                        contentDiv.innerHTML = `<div class="card full-width-card"><p>त्रुटी: ${data.message}</p></div>`;
-                    }
+                    if (data.status === 'success') { renderDashboard(data); } 
+                    else { contentDiv.innerHTML = `<div class="card full-width-card"><p>त्रुटी: ${data.message}</p></div>`; }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    contentDiv.innerHTML = `<div class="card full-width-card"><p>डेटा लोड करताना त्रुटी आली. कृपया इंटरनेट कनेक्शन तपासा.</p></div>`;
-                });
+                .catch(error => { contentDiv.innerHTML = `<div class="card full-width-card"><p>डेटा लोड करताना त्रुटी आली.</p></div>`; });
         }
         
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-        }
+        function formatCurrency(value) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value); }
 
         function renderDashboard(data) {
             const overall = data.overallKPIs;
             const daily = data.dailyData;
-
             const goalPercentage = parseFloat(overall.goalAchievementPercentage);
-            
             contentDiv.innerHTML = `
-                <!-- Overall KPIs -->
-                <div class="card" id="goal-card">
-                    <div class="card-header"><div class="card-icon" style="color:var(--purple); background-color:#f4eef7;"><i class="fas fa-bullseye"></i></div><div class="card-title">ध्येयपूर्ती (Growth)</div></div>
-                    <div class="kpi-value">${goalPercentage.toFixed(2)}%</div>
-                    <div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(goalPercentage, 100)}%;"></div></div>
-                    <div class="kpi-value small">लक्ष्य: ${formatCurrency(overall.target)}</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-chart-line"></i></div><div class="card-title">एकूण वाढ</div></div>
-                    <div class="kpi-value">${formatCurrency(overall.growth)}</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><div class="card-icon" style="color:var(--primary-color); background-color:#eaf3fb;"><i class="fas fa-wallet"></i></div><div class="card-title">सध्याची थकबाकी</div></div>
-                    <div class="kpi-value">${formatCurrency(overall.currentOutstanding)}</div>
-                </div>
-                
-                <!-- Daily KPIs -->
-                <div class="card">
-                    <div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-hand-holding-dollar"></i></div><div class="card-title">आजची वसुली</div></div>
-                    <div class="kpi-value">${formatCurrency(daily.totalRecovery)}</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header"><div class="card-icon" style="color:var(--orange); background-color:#fef4e6;"><i class="fas fa-comments-dollar"></i></div><div class="card-title">आजचे वाटप</div></div>
-                    <div class="kpi-value">${formatCurrency(daily.totalDisbursement)}</div>
-                </div>
-                
-                <div class="card full-width-card">
-                    <h3>आजची कर्मचारी कामगिरी (${new Date(dateInput.value).toLocaleDateString('mr-IN')})</h3>
-                    <table>
-                        <thead><tr><th>कर्मचारी</th><th>नवीन खाती</th><th>वाटप रक्कम</th><th>वसुली रक्कम</th></tr></thead>
-                        <tbody id="staff-table-body"></tbody>
-                    </table>
-                </div>
-                
-                <div class="card full-width-card">
-                    <h3>आजची वसुली (चार्ट)</h3>
-                    <div id="chart-container"><canvas id="staffPerformanceChart"></canvas></div>
-                </div>
-            `;
-            
+                <div class="card" id="goal-card"><div class="card-header"><div class="card-icon" style="color:var(--purple); background-color:#f4eef7;"><i class="fas fa-bullseye"></i></div><div class="card-title">ध्येयपूर्ती (Growth)</div></div><div class="kpi-value">${goalPercentage.toFixed(2)}%</div><div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(goalPercentage, 100)}%;"></div></div><div class="kpi-value small">लक्ष्य: ${formatCurrency(overall.target)}</div></div>
+                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-chart-line"></i></div><div class="card-title">एकूण वाढ</div></div><div class="kpi-value">${formatCurrency(overall.growth)}</div></div>
+                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--primary-color); background-color:#eaf3fb;"><i class="fas fa-wallet"></i></div><div class="card-title">सध्याची थकबाकी</div></div><div class="kpi-value">${formatCurrency(overall.currentOutstanding)}</div></div>
+                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-hand-holding-dollar"></i></div><div class="card-title">आजची वसुली</div></div><div class="kpi-value">${formatCurrency(daily.totalRecovery)}</div></div>
+                <div class="card"><div class="card-header"><div class="card-icon" style="color:var(--orange); background-color:#fef4e6;"><i class="fas fa-comments-dollar"></i></div><div class="card-title">आजचे वाटप</div></div><div class="kpi-value">${formatCurrency(daily.totalDisbursement)}</div></div>
+                <div class="card full-width-card"><h3>आजची कर्मचारी कामगिरी (${new Date(dateInput.value).toLocaleDateString('mr-IN')})</h3><table><thead><tr><th>कर्मचारी</th><th>नवीन खाती</th><th>वाटप रक्कम</th><th>वसुली रक्कम</th></tr></thead><tbody id="staff-table-body"></tbody></table></div>
+                <div class="card full-width-card"><h3>आजची वसुली (चार्ट)</h3><div id="chart-container"><canvas id="staffPerformanceChart"></canvas></div></div>`;
             const tableBody = document.getElementById('staff-table-body');
             const staffPerformance = daily.staffPerformance.filter(s => s.disbursement > 0 || s.recovery > 0);
-            
-            if(staffPerformance.length === 0){
-                 tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">या तारखेसाठी कोणताही डेटा उपलब्ध नाही.</td></tr>`;
-            } else {
-                staffPerformance.forEach(staff => {
-                    tableBody.innerHTML += `<tr>
-                        <td>${staff.name}</td><td>${staff.newAccounts}</td>
-                        <td>${formatCurrency(staff.disbursement)}</td><td>${formatCurrency(staff.recovery)}</td>
-                    </tr>`;
-                });
-            }
+            if(staffPerformance.length === 0){ tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">या तारखेसाठी कोणताही डेटा उपलब्ध नाही.</td></tr>`; } 
+            else { staffPerformance.forEach(staff => { tableBody.innerHTML += `<tr><td>${staff.name}</td><td>${staff.newAccounts}</td><td>${formatCurrency(staff.disbursement)}</td><td>${formatCurrency(staff.recovery)}</td></tr>`; }); }
             createOrUpdateChart(staffPerformance);
         }
         
@@ -164,22 +94,7 @@
             const labels = staffData.map(s => s.name);
             const recoveryData = staffData.map(s => s.recovery);
             if (staffChart) staffChart.destroy();
-            staffChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'वसुली रक्कम (₹)', data: recoveryData,
-                        backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)',
-                        borderWidth: 1, borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { display: false } }
-                }
-            });
+            staffChart = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'वसुली रक्कम (₹)', data: recoveryData, backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 1, borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
         }
     </script>
 </body>
