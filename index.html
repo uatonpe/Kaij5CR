@@ -3,106 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>रोजची माहिती भरा</title>
+    <title>मिशन ५ कोटी - डॅशबोर्ड</title>
+    <!-- Chart.js Library for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { max-width: 400px; width: 100%; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h3 { text-align: center; color: #333; margin-top: 0; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; transition: background-color 0.3s; }
-        button:hover { background-color: #45a049; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        #status { margin-top: 15px; text-align: center; font-weight: bold; min-height: 20px; }
+        /* CSS Code - Power BI Look */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: auto; }
+        header { text-align: center; margin-bottom: 30px; color: #1a237e; }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .kpi-value { font-size: 2.2em; font-weight: bold; color: #1a237e; margin: 10px 0; }
+        .progress-bar-container { background-color: #e0e0e0; border-radius: 5px; height: 10px; width: 100%; }
+        .progress-bar { background-color: #4caf50; height: 100%; border-radius: 5px; width: 0%; transition: width 0.5s ease-in-out; }
+        .full-width { grid-column: 1 / -1; } /* Makes an item span full width in a grid */
+        #staffTable { width: 100%; border-collapse: collapse; }
+        #staffTable th, #staffTable td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        #staffTable th { background-color: #f2f2f2; }
+
+        /* Form styling */
+        .data-form { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; flex-grow: 1; }
+        .form-group label { margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .form-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #1a237e;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            height: 42px; /* Align with inputs */
+        }
+        .form-button:hover { background-color: #283593; }
+        #form-status { margin-top: 10px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h3>रोजची माहिती भरा</h3>
-        <form id="dataForm">
-            <label for="staffName">कर्मचाऱ्याचे नाव:</label>
-            <select id="staffName" name="staffName" required>
-                <option value="">लोड होत आहे...</option>
-            </select>
-            <label for="recoveryAmount">एकूण वसुली रक्कम:</label>
-            <input type="number" id="recoveryAmount" name="recoveryAmount" required>
-            <label for="recoveryAccounts">वसुली खात्यांची संख्या:</label>
-            <input type="number" id="recoveryAccounts" name="recoveryAccounts" required>
-            <label for="disbursementAmount">नवीन वाटप रक्कम:</label>
-            <input type="number" id="disbursementAmount" name="disbursementAmount" required>
-            <label for="disbursementAccounts">नवीन वाटप खात्यांची संख्या:</label>
-            <input type="number" id="disbursementAccounts" name="disbursementAccounts" required>
-            <button type="submit" id="submitBtn">माहिती जमा करा</button>
-        </form>
-        <div id="status"></div>
+        <header>
+            <h1>मिशन ५ कोटी - प्रगती ट्रॅकर</h1>
+            <p>अंतिम तारीख: 12/02/2027</p>
+        </header>
+
+        <main class="grid-container">
+            <!-- Data Entry Form Section -->
+            <section class="card full-width">
+                <h2>रोजचा डेटा टाका</h2>
+                <form id="data-entry-form" class="data-form">
+                    <div class="form-group">
+                        <label for="staffName">कर्मचारी नाव</label>
+                        <select id="staffName" name="staffName" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newAccounts">नवीन खाती</label>
+                        <input type="number" id="newAccounts" name="newAccounts" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="disbursement">वाटप रक्कम</label>
+                        <input type="number" id="disbursement" name="disbursement" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recovery">वसुली रक्कम</label>
+                        <input type="number" id="recovery" name="recovery" value="0" required>
+                    </div>
+                    <button type="submit" class="form-button">सबमिट करा</button>
+                </form>
+                <p id="form-status"></p>
+            </section>
+            
+            <!-- Key Metrics Section -->
+            <div class="card">
+                <h2>ध्येयपूर्ती (Goal Achievement)</h2>
+                <p id="goalPercent" class="kpi-value">--%</p>
+                <div class="progress-bar-container"><div id="goalProgressBar" class="progress-bar"></div></div>
+            </div>
+            <div class="card">
+                <h2>झालेली वाढ (Total Growth)</h2>
+                <p id="growthAmount" class="kpi-value">-- कोटी</p>
+            </div>
+            <div class="card">
+                <h2>एकूण वाटप (Disbursement)</h2>
+                <p id="totalDisbursement" class="kpi-value">-- कोटी</p>
+            </div>
+            <div class="card">
+                <h2>एकूण वसुली (Recovery)</h2>
+                <p id="totalRecovery" class="kpi-value">-- कोटी</p>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="card">
+                <h2>वाटप vs वसुली</h2>
+                <canvas id="disbursementRecoveryChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>कर्मचारी योगदान (Top Performers)</h2>
+                <canvas id="staffContributionChart"></canvas>
+            </div>
+
+            <!-- Staff Performance Table Section -->
+            <section class="card full-width">
+                <h2>कर्मचारी निहाय कामगिरी (Staff Wise Performance)</h2>
+                <table id="staffTable">
+                    <thead>
+                        <tr>
+                            <th>कर्मचारी नाव</th>
+                            <th>एकूण वाटप</th>
+                            <th>एकूण वसुली</th>
+                            <th>सध्याची पोझिशन</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
     </div>
 
     <script>
-        // इथे तुमची प्रकाशित केलेली Apps Script URL टाका (तीच जी डॅशबोर्डमध्ये टाकली)
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRzhFuj9Hue3n63c46VfSDMrDhwQYlSj-Fh4YQkLcuYoVj4hUPO8mvWs-06M1nxa_o/exec";
+        // *** इथे तुमची नवीन Google Apps Script ची URL पेस्ट करा ***
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzZ0FqpBC9X7tYTdNvCi60yug8X0mib41aIvQiyuMpzJiifPVAkeCz63wNcjPyEdI8v/exec';
+        
+        // Global chart instances to destroy before redrawing
+        let disbursementRecoveryChartInstance = null;
+        let staffContributionChartInstance = null;
 
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch(WEB_APP_URL + "?action=getStaffNames")
-                .then(response => response.json())
-                .then(names => {
-                    const select = document.getElementById("staffName");
-                    select.innerHTML = '<option value="">निवडा</option>';
-                    names.forEach(name => {
-                        const option = document.createElement("option");
-                        option.text = name;
-                        option.value = name;
-                        select.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching staff names:', error);
-                    document.getElementById("staffName").innerHTML = '<option value="">त्रुटी!</option>';
-                });
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+            
+            const form = document.getElementById('data-entry-form');
+            form.addEventListener('submit', handleFormSubmit);
         });
 
-        document.getElementById("dataForm").addEventListener("submit", function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById("submitBtn");
-            const statusDiv = document.getElementById("status");
+        function initializeDashboard() {
+            fetch(WEB_APP_URL)
+                .then(response => response.json())
+                .then(data => {
+                    populateStaffDropdown(data.staffList);
+                    updateDashboard(data.dashboardData);
+                })
+                .catch(error => console.error('Error initializing dashboard:', error));
+        }
+        
+        function populateStaffDropdown(staffList) {
+            const selectElement = document.getElementById('staffName');
+            selectElement.innerHTML = ''; // Clear existing options
+            staffList.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                selectElement.appendChild(option);
+            });
+        }
 
-            const formData = {
-                staffName: this.staffName.value,
-                recoveryAmount: this.recoveryAmount.value,
-                recoveryAccounts: this.recoveryAccounts.value,
-                disbursementAmount: this.disbursementAmount.value,
-                disbursementAccounts: this.disbursementAccounts.value
-            };
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent page reload
+            const form = event.target;
+            const statusEl = document.getElementById('form-status');
             
-            submitBtn.disabled = true;
-            statusDiv.innerText = "जमा होत आहे...";
-            statusDiv.style.color = 'black';
+            const formData = {
+                staffName: form.staffName.value,
+                newAccounts: form.newAccounts.value,
+                disbursement: form.disbursement.value,
+                recovery: form.recovery.value,
+            };
+
+            statusEl.textContent = 'डेटा सबमिट होत आहे...';
+            statusEl.className = '';
 
             fetch(WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify(formData),
-                headers: { 'Content-Type': 'application/json' }
+                mode: 'no-cors', // Important for simple POST requests to Google Scripts
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    statusDiv.innerText = data.message;
-                    statusDiv.style.color = 'green';
-                    document.getElementById("dataForm").reset();
-                } else {
-                    statusDiv.innerText = data.message;
-                    statusDiv.style.color = 'red';
-                }
+            .then(() => {
+                statusEl.textContent = 'डेटा यशस्वीरित्या सबमिट झाला! डॅशबोर्ड रिफ्रेश होत आहे...';
+                statusEl.className = 'success';
+                form.reset();
+                // Refresh dashboard after a short delay
+                setTimeout(() => {
+                    initializeDashboard();
+                    statusEl.textContent = '';
+                }, 2000);
             })
             .catch(error => {
-                console.error('Error:', error);
-                statusDiv.innerText = "त्रुटी! इंटरनेट कनेक्शन तपासा.";
-                statusDiv.style.color = 'red';
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                setTimeout(() => { statusDiv.innerText = ''; }, 4000);
+                statusEl.textContent = 'त्रुटी: डेटा सबमिट झाला नाही.';
+                statusEl.className = 'error';
+                console.error('Error submitting form:', error);
             });
-        });
+        }
+
+        function formatToCrore(value) {
+            if (Math.abs(value) >= 10000000) {
+                return (value / 10000000).toFixed(2) + ' कोटी';
+            } else if (Math.abs(value) >= 100000) {
+                return (value / 100000).toFixed(2) + ' लाख';
+            }
+            return value.toLocaleString('en-IN');
+        }
+
+        function updateDashboard(data) {
+            // Update KPIs
+            document.getElementById('goalPercent').textContent = `${data.goalAchievementPercentage}%`;
+            document.getElementById('goalProgressBar').style.width = `${data.goalAchievementPercentage}%`;
+            document.getElementById('growthAmount').textContent = formatToCrore(data.growth);
+            document.getElementById('totalDisbursement').textContent = formatToCrore(data.totalDisbursement);
+            document.getElementById('totalRecovery').textContent = formatToCrore(data.totalRecovery);
+
+            // Update Staff Table
+            const tableBody = document.querySelector('#staffTable tbody');
+            tableBody.innerHTML = '';
+            for (const staffName in data.staffPerformance) {
+                const staff = data.staffPerformance[staffName];
+                const row = `<tr>
+                    <td>${staffName}</td>
+                    <td>${staff.disbursement.toLocaleString('en-IN')}</td>
+                    <td>${staff.recovery.toLocaleString('en-IN')}</td>
+                    <td>${staff.currentOutstanding.toLocaleString('en-IN')}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            }
+
+            // Update Charts
+            createDisbursementRecoveryChart(data.totalDisbursement, data.totalRecovery);
+            createStaffContributionChart(data.staffPerformance);
+        }
+
+        function createDisbursementRecoveryChart(disbursement, recovery) {
+            if (disbursementRecoveryChartInstance) {
+                disbursementRecoveryChartInstance.destroy();
+            }
+            const ctx = document.getElementById('disbursementRecoveryChart').getContext('2d');
+            disbursementRecoveryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['एकूण वाटप', 'एकूण वसुली'],
+                    datasets: [{
+                        data: [disbursement, recovery],
+                        backgroundColor: ['#36A2EB', '#FF6384'],
+                    }]
+                }
+            });
+        }
+
+        function createStaffContributionChart(staffData) {
+            if (staffContributionChartInstance) {
+                staffContributionChartInstance.destroy();
+            }
+            const staffNames = Object.keys(staffData);
+            const staffGrowth = staffNames.map(name => staffData[name].disbursement - staffData[name].recovery);
+
+            const ctx = document.getElementById('staffContributionChart').getContext('2d');
+            staffContributionChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: staffNames,
+                    datasets: [{
+                        label: 'योगदान (वाटप - वसुली)',
+                        data: staffGrowth,
+                        backgroundColor: '#4BC0C0',
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
     </script>
 </body>
 </html>
