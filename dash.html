@@ -17,21 +17,18 @@
     <style>
         /* CSS code is embedded here */
         :root {
-            /* Light Theme Color Palette */
-            --bg-color: #f1f5f9;         /* Light Gray background */
-            --card-color: #ffffff;      /* White card background */
-            --border-color: #e2e8f0;    /* Lighter border color */
-            --text-primary: #1e293b;    /* Dark slate text */
-            --text-secondary: #64748b;  /* Medium gray text */
-            --accent-primary: #0ea5e9;  /* A slightly deeper, vibrant blue */
-            --accent-secondary: #22c55e; /* A standard, clear green */
-            --accent-danger: #ef4444;    /* A standard, clear red */
+            --bg-color: #f1f5f9;
+            --card-color: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #0ea5e9;
+            --accent-secondary: #22c55e;
+            --accent-danger: #ef4444;
             --font-family: 'Poppins', sans-serif;
         }
 
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
             font-family: var(--font-family);
@@ -39,20 +36,14 @@
             color: var(--text-primary);
             margin: 0;
             padding: 24px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
+        body.modal-open { overflow: hidden; }
 
-        .dashboard-container {
-            max-width: 1600px;
-            margin: auto;
-            display: grid;
-            gap: 24px;
-        }
+        .dashboard-container { max-width: 1600px; margin: auto; display: grid; gap: 24px; }
 
-        /* --- Header --- */
+        /* --- Header & Date Filter --- */
         .dashboard-header {
-            background-color: var(--card-color); /* Changed from dark gradient to white */
+            background-color: var(--card-color);
             border: 1px solid var(--border-color);
             padding: 24px;
             border-radius: 16px;
@@ -75,9 +66,34 @@
             color: var(--text-secondary);
             font-size: 0.9rem;
         }
+        .date-filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .date-filter-container label { font-size: 0.9rem; color: var(--text-secondary); }
+        .date-filter-container input[type="date"], .date-filter-container button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #f8fafc;
+            font-family: var(--font-family);
+        }
+        .date-filter-container button {
+            background-color: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .date-filter-container button:hover { background-color: #0284c7; }
 
-        /* --- KPI Cards --- */
-        .kpi-grid {
+        /* --- KPI & Performer Grids --- */
+        .kpi-grid, .performer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
@@ -87,92 +103,91 @@
             border: 1px solid var(--border-color);
             padding: 24px;
             border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .kpi-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2); /* Softer shadow for light theme */
+            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
         }
-        .kpi-title {
+        .clickable { cursor: pointer; }
+        .kpi-title, .performer-card h3 {
             font-size: 1rem;
             color: var(--text-secondary);
             font-weight: 400;
+            margin: 0 0 8px 0;
         }
-        .kpi-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1.1;
-            color: var(--text-primary);
-        }
-        .kpi-subtitle {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        #totalGrowth.positive { color: var(--accent-secondary); }
-        #totalGrowth.negative { color: var(--accent-danger); }
+        .kpi-value { font-size: 2.5rem; font-weight: 700; }
+        .kpi-subtitle { font-size: 0.8rem; color: var(--text-secondary); }
+        #totalGrowth.positive, .positive { color: var(--accent-secondary); }
+        #totalGrowth.negative, .negative { color: var(--accent-danger); }
         #targetAmount { color: var(--accent-primary); }
 
-        /* --- Progress Card --- */
-        .progress-card {
-            background-color: var(--card-color);
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            border-radius: 16px;
-        }
-        .progress-card h3 { margin: 0 0 16px 0; color: var(--text-primary); font-weight: 600; }
-        .progress-bar-container {
-            background-color: var(--border-color); /* Light gray for the empty part of the bar */
-            border-radius: 10px;
-            overflow: hidden;
-            height: 30px;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-primary), #818cf8);
-            transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .progress-label {
+        /* Performer Cards Specifics */
+        .performer-card ol { list-style: none; padding: 0; margin: 0; }
+        .performer-card li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        .performer-card li:last-child { border-bottom: none; }
+        .performer-card span:first-child { color: var(--text-primary); font-weight: 600; }
+        .performer-card span:last-child { font-weight: 700; }
+        .performer-card a {
+            display: block;
+            margin-top: 16px;
             text-align: right;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 8px;
             color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
         }
+        .performer-card a:hover { text-decoration: underline; }
 
-        /* --- Charts and Tables --- */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 24px;
-        }
-        .chart-container, .table-container {
-            background-color: var(--card-color);
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            border-radius: 16px;
-        }
-        .chart-container {
-            grid-column: span 12;
-            height: 450px;
-        }
+        /* --- Progress Card, Charts, Table (No changes needed here) --- */
+        .progress-card { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; }
+        .progress-card h3 { margin: 0 0 16px 0; }
+        .progress-bar-container { background-color: var(--border-color); border-radius: 10px; overflow: hidden; height: 30px; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-primary), #818cf8); transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .progress-label { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 8px; color: var(--accent-primary); }
+        .grid-layout { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+        .chart-container, .table-container { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; }
+        .chart-container { grid-column: span 12; height: 450px; }
         .table-container { grid-column: span 12; }
         @media (min-width: 1024px) {
             .chart-container:nth-child(1) { grid-column: span 5; }
             .chart-container:nth-child(2) { grid-column: span 7; }
         }
-        .table-container h3, .chart-container h3 { margin: 0 0 16px 0; color: var(--text-primary); font-weight: 600; }
+        .table-container h3, .chart-container h3 { margin: 0 0 16px 0; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
         th { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
-        tbody tr { transition: background-color 0.2s; }
-        tbody tr:hover { background-color: #f8fafc; } /* Light gray hover for table rows */
+        tbody tr:hover { background-color: #f8fafc; }
         td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: right; }
-        .positive { color: var(--accent-secondary) !important; font-weight: 600; }
-        .negative { color: var(--accent-danger) !important; font-weight: 600; }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.7);
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 32px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h2 { margin: 0; font-size: 1.5rem; }
+        .modal-close-btn { font-size: 2rem; font-weight: bold; color: var(--text-secondary); cursor: pointer; border: none; background: none; }
+        .modal-body { overflow-y: auto; }
+        .modal-body table { width: 100%; }
+        .modal-body th { background-color: #f8fafc; }
     </style>
 </head>
 <body>
@@ -182,18 +197,39 @@
         <header class="dashboard-header">
             <h1>मिशन ५ कोटी - लाईव्ह प्रगती डॅशबोर्ड</h1>
             <div class="header-info">
-                <span>📅 सुरुवात: <b id="startDate">...</b></span>
+                <span>📅 मूळ सुरुवात: <b id="startDate">...</b></span>
                 <span>🏁 अंतिम तारीख: <b id="endDate">...</b></span>
                 <span>⏳ दिवस शिल्लक: <b id="daysLeft">...</b></span>
+            </div>
+            <div class="date-filter-container">
+                <label for="startDateFilter">पासून:</label>
+                <input type="date" id="startDateFilter">
+                <label for="endDateFilter">पर्यंत:</label>
+                <input type="date" id="endDateFilter">
+                <button id="filterBtn">फिल्टर करा</button>
             </div>
         </header>
 
         <!-- KPI Grid -->
         <div class="kpi-grid">
             <div class="kpi-card"><div class="kpi-title">सुरुवातीचे आउटस्टँडिंग</div><div class="kpi-value" id="initialOutstanding">₹ 0</div></div>
-            <div class="kpi-card"><div class="kpi-title">एकूण वाढ (Growth)</div><div class="kpi-value" id="totalGrowth">₹ 0</div><div class="kpi-subtitle">नेट (वाटप - वसुली)</div></div>
+            <div class="kpi-card clickable" id="kpiGrowthCard"><div class="kpi-title">एकूण वाढ (Growth) ▾</div><div class="kpi-value" id="totalGrowth">₹ 0</div><div class="kpi-subtitle">नेट (वाटप - वसुली)</div></div>
             <div class="kpi-card"><div class="kpi-title">सध्याचे आउटस्टँडिंग</div><div class="kpi-value" id="currentOutstanding">₹ 0</div></div>
             <div class="kpi-card"><div class="kpi-title">🎯 ध्येय (Target)</div><div class="kpi-value" id="targetAmount">₹ 0</div></div>
+        </div>
+        
+        <!-- Performer Grid -->
+        <div class="performer-grid">
+            <div class="kpi-card performer-card">
+                <h3>🏆 टॉप ३ परफॉर्मर्स (वाढ)</h3>
+                <ol id="topPerformersList"></ol>
+                <a href="#staffTable">संपूर्ण यादी पहा &rarr;</a>
+            </div>
+            <div class="kpi-card performer-card">
+                <h3>🔻 सर्वात कमी कामगिरी (वाढ)</h3>
+                <ol id="lowPerformersList"></ol>
+                 <a href="#staffTable">संपूर्ण यादी पहा &rarr;</a>
+            </div>
         </div>
 
         <!-- Progress Card -->
@@ -207,11 +243,24 @@
         <div class="grid-layout">
             <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
             <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
-            <div class="table-container"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
-                <table id="staffTable">
+            <div class="table-container" id="staffTable"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
+                <table>
                     <thead><tr><th>कर्मचाऱ्याचे नाव</th><th style="text-align: right;">एकूण वाटप</th><th style="text-align: right;">एकूण वसुली</th><th style="text-align: right;">एकूण वाढ (Growth)</th></tr></thead>
                     <tbody id="staffTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">तपशील</h2>
+                <button id="closeModalBtn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be injected by JavaScript -->
             </div>
         </div>
     </div>
@@ -225,6 +274,11 @@
         const DAILY_DATA_SHEET = 'DailyData';
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+        // Global variables to store data
+        let _allDailyData = [];
+        let _settings = {};
+        let _currentStaffPerformance = {};
+        
         // Function to fetch data from Google Sheets API
         async function fetchSheetData(sheetName) {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}`;
@@ -238,6 +292,13 @@
                 return rows.map(row => {
                     let obj = {};
                     headers.forEach((header, index) => { obj[header] = row[index] || '0'; });
+                    // Add a proper Date object for sorting/filtering
+                    const dateParts = obj['Date'] ? obj['Date'].split('-') : [];
+                    if (dateParts.length === 3) {
+                       obj.dateObj = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+                    } else {
+                       obj.dateObj = null;
+                    }
                     return obj;
                 });
             } catch (error) {
@@ -247,7 +308,6 @@
             }
         }
 
-        // Function to format numbers as Indian Rupees currency
         function formatCurrency(num, compact = false) {
             const value = parseFloat(String(num).replace(/,/g, '')) || 0;
             const options = { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 };
@@ -258,80 +318,66 @@
             return new Intl.NumberFormat('en-IN', options).format(value);
         }
 
-        // Main function to load and render the dashboard
-        async function loadDashboard() {
-            const [settingsData, dailyData] = await Promise.all([
-                fetchSheetData(SETTINGS_SHEET),
-                fetchSheetData(DAILY_DATA_SHEET)
-            ]);
-            
-            if (!settingsData || !dailyData) return; // Stop if data loading failed
+        // Main function to filter and render all dashboard components
+        function filterAndRenderDashboard(startDate, endDate) {
+            const filteredData = _allDailyData.filter(row => {
+                if (!row.dateObj) return false;
+                const isAfterStart = startDate ? row.dateObj >= startDate : true;
+                const isBeforeEnd = endDate ? row.dateObj <= endDate : true;
+                return isAfterStart && isBeforeEnd;
+            });
 
-            // 1. Process Settings
-            const settings = {};
-            settingsData.forEach(item => { settings[item['Setting Name']] = item['Value']; });
-            const targetGrowth = parseFloat(settings['Target']);
-            const initialOutstanding = parseFloat(settings['Initial Outstanding']);
-            const startDateStr = settings['Start Date'];
-            const endDateStr = settings['End Date'];
-
-            // 2. Process Daily Data
+            // 1. Process Data
             const staffPerformance = {};
             const monthlyData = {};
 
-            dailyData.forEach(row => {
+            filteredData.forEach(row => {
                 const staffName = row['Staff Name'];
                 if (!staffName || staffName.trim() === '') return;
                 const disbursement = parseFloat(row['New Accounts Disbursement']) || 0;
                 const recovery = parseFloat(row['Recovery']) || 0;
-                staffPerformance[staffName] = staffPerformance[staffName] || { disbursement: 0, recovery: 0, growth: 0 };
+                staffPerformance[staffName] = staffPerformance[staffName] || { name: staffName, disbursement: 0, recovery: 0, growth: 0 };
                 staffPerformance[staffName].disbursement += disbursement;
                 staffPerformance[staffName].recovery += recovery;
                 staffPerformance[staffName].growth += (disbursement - recovery);
                 
-                const dateParts = row['Date'].split('-');
-                if (dateParts.length === 3) {
-                    const monthYear = `01-${dateParts[1]}-${dateParts[2]}`;
-                    monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0 };
-                    monthlyData[monthYear].disbursement += disbursement;
-                    monthlyData[monthYear].recovery += recovery;
-                }
+                const monthYear = row.dateObj.toISOString().slice(0, 7); // YYYY-MM format
+                monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0 };
+                monthlyData[monthYear].disbursement += disbursement;
+                monthlyData[monthYear].recovery += recovery;
             });
+
+            // Store for modal access
+            _currentStaffPerformance = staffPerformance;
 
             const totalDisbursement = Object.values(staffPerformance).reduce((sum, s) => sum + s.disbursement, 0);
             const totalRecovery = Object.values(staffPerformance).reduce((sum, s) => sum + s.recovery, 0);
 
-            // 3. Calculate Key Metrics
+            // 2. Calculate Key Metrics
+            const initialOutstanding = parseFloat(_settings['Initial Outstanding']);
             const netGrowth = totalDisbursement - totalRecovery;
             const currentOutstanding = initialOutstanding + netGrowth;
+            const targetGrowth = parseFloat(_settings['Target']);
             const goalAchievedPercentage = targetGrowth > 0 ? (netGrowth / targetGrowth) * 100 : 0;
-            const [day, month, year] = endDateStr.split('-');
-            const endDate = new Date(`${year}-${month}-${day}`);
-            const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
 
-            // 4. Update UI Elements
-            document.getElementById('startDate').textContent = startDateStr;
-            document.getElementById('endDate').textContent = endDateStr;
-            document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 0;
-            document.getElementById('initialOutstanding').textContent = formatCurrency(initialOutstanding, true);
-            document.getElementById('targetAmount').textContent = formatCurrency(targetGrowth, true);
+            // 3. Update UI Elements
             document.getElementById('totalGrowth').textContent = formatCurrency(netGrowth, true);
             document.getElementById('totalGrowth').className = `kpi-value ${netGrowth >= 0 ? 'positive' : 'negative'}`;
             document.getElementById('currentOutstanding').textContent = formatCurrency(currentOutstanding, true);
             
             const progressBar = document.getElementById('goalProgressBar');
-            setTimeout(() => { progressBar.style.width = `${Math.min(goalAchievedPercentage, 100)}%`; }, 100);
+            progressBar.style.width = `${Math.min(goalAchievedPercentage, 100)}%`;
             document.getElementById('goalProgressLabel').textContent = `${goalAchievedPercentage.toFixed(2)}%`;
 
-            // 5. Render Charts and Table
+            // 4. Render Charts, Tables, and Performer Cards
             renderStaffPerformanceChart(staffPerformance);
             renderMonthlyTrendChart(monthlyData);
             renderStaffTable(staffPerformance);
+            renderPerformerCards(staffPerformance);
         }
-
-        // Chart and table rendering functions
+        
+        // All rendering functions
         let staffChartInstance, monthlyChartInstance;
-        // The chart options use CSS variables, so they will automatically adapt to the new theme!
         const chartOptions = {
             maintainAspectRatio: false,
             scales: { y: { beginAtZero: true, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } }, x: { ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } } },
@@ -341,23 +387,17 @@
         function renderStaffPerformanceChart(staffData) {
             const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
             if (staffChartInstance) staffChartInstance.destroy();
-            
-            const sortedStaff = Object.entries(staffData).sort(([,a],[,b]) => b.growth - a.growth).slice(0, 10); // Top 10
-            const labels = sortedStaff.map(s => s[0]);
-            const growthData = sortedStaff.map(s => s[1].growth);
-
+            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth).slice(0, 10);
             staffChartInstance = new Chart(ctx, { 
                 type: 'bar', 
-                data: { labels, datasets: [{ label: 'एकूण वाढ (Growth)', data: growthData, backgroundColor: 'rgba(14, 165, 233, 0.6)', borderColor: 'rgba(14, 165, 233, 1)', borderWidth: 1 }] }, 
+                data: { labels: sortedStaff.map(s => s.name), datasets: [{ label: 'एकूण वाढ (Growth)', data: sortedStaff.map(s => s.growth), backgroundColor: 'rgba(14, 165, 233, 0.6)', borderColor: 'rgba(14, 165, 233, 1)', borderWidth: 1 }] }, 
                 options: chartOptions 
             });
         }
         function renderMonthlyTrendChart(monthlyData) {
             const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
             if (monthlyChartInstance) monthlyChartInstance.destroy();
-            
-            const sortedMonths = Object.keys(monthlyData).sort((a,b) => new Date(a) - new Date(b));
-            
+            const sortedMonths = Object.keys(monthlyData).sort();
             monthlyChartInstance = new Chart(ctx, { 
                 type: 'line', 
                 data: { 
@@ -367,28 +407,122 @@
                         { label: 'एकूण वसुली', data: sortedMonths.map(m => monthlyData[m].recovery), borderColor: 'var(--accent-danger)', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.3 }
                     ] 
                 }, 
-                options: { ...chartOptions, scales: { ...chartOptions.scales, x: { type: 'time', time: { unit: 'month' }, ticks: { color: 'var(--text-secondary)' } } } }
+                options: { ...chartOptions, scales: { ...chartOptions.scales, x: { type: 'time', time: { unit: 'month', displayFormats: { month: 'MMM yyyy' }}, ticks: { color: 'var(--text-secondary)' } } } }
             });
         }
         function renderStaffTable(staffData) {
             const tableBody = document.getElementById('staffTableBody');
             tableBody.innerHTML = '';
-            const sortedStaff = Object.entries(staffData).sort(([,a],[,b]) => b.growth - a.growth);
-            for (const [name, data] of sortedStaff) {
+            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth);
+            sortedStaff.forEach(data => {
                 const growthClass = data.growth > 0 ? 'positive' : (data.growth < 0 ? 'negative' : '');
                 tableBody.innerHTML += `
                     <tr>
-                        <td>${name}</td>
+                        <td>${data.name}</td>
                         <td>${formatCurrency(data.disbursement)}</td>
                         <td>${formatCurrency(data.recovery)}</td>
                         <td class="${growthClass}">${formatCurrency(data.growth)}</td>
                     </tr>`;
-            }
+            });
+        }
+        function renderPerformerCards(staffData) {
+            const topList = document.getElementById('topPerformersList');
+            const lowList = document.getElementById('lowPerformersList');
+            topList.innerHTML = '';
+            lowList.innerHTML = '';
+
+            const sortedStaff = Object.values(staffData).sort((a,b) => b.growth - a.growth);
+            
+            // Top 3
+            sortedStaff.slice(0, 3).forEach(staff => {
+                topList.innerHTML += `<li><span>${staff.name}</span><span class="positive">${formatCurrency(staff.growth)}</span></li>`;
+            });
+
+            // Bottom 3
+            sortedStaff.slice(-3).reverse().forEach(staff => {
+                const growthClass = staff.growth >= 0 ? 'positive' : 'negative';
+                lowList.innerHTML += `<li><span>${staff.name}</span><span class="${growthClass}">${formatCurrency(staff.growth)}</span></li>`;
+            });
+        }
+        
+        // Modal functions
+        function openModal(title, data) {
+            const modal = document.getElementById('detailsModal');
+            document.getElementById('modalTitle').textContent = title;
+            const modalBody = document.getElementById('modalBody');
+            
+            let tableHTML = `<table><thead><tr><th>कर्मचारी</th><th style="text-align:right;">एकूण वाढ (Growth)</th></tr></thead><tbody>`;
+            const sortedData = Object.values(data).sort((a, b) => b.growth - a.growth);
+            sortedData.forEach(staff => {
+                 const growthClass = staff.growth >= 0 ? 'positive' : 'negative';
+                 tableHTML += `<tr><td>${staff.name}</td><td class="${growthClass}" style="text-align:right;">${formatCurrency(staff.growth)}</td></tr>`;
+            });
+            tableHTML += `</tbody></table>`;
+            
+            modalBody.innerHTML = tableHTML;
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailsModal');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+
+        // Initial loading function
+        async function loadDashboard() {
+            const [settingsData, dailyData] = await Promise.all([
+                fetchSheetData(SETTINGS_SHEET),
+                fetchSheetData(DAILY_DATA_SHEET)
+            ]);
+            
+            if (!settingsData || !dailyData) return;
+            
+            _allDailyData = dailyData.filter(row => row.dateObj); // Store all data globally
+            settingsData.forEach(item => { _settings[item['Setting Name']] = item['Value']; });
+            
+            // Populate Static Header Info
+            document.getElementById('startDate').textContent = _settings['Start Date'];
+            document.getElementById('endDate').textContent = _settings['End Date'];
+            document.getElementById('initialOutstanding').textContent = formatCurrency(parseFloat(_settings['Initial Outstanding']), true);
+            document.getElementById('targetAmount').textContent = formatCurrency(parseFloat(_settings['Target']), true);
+            const [day, month, year] = _settings['End Date'].split('-');
+            const endDate = new Date(`${year}-${month}-${day}`);
+            const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 0;
+            
+            // Set default date filter values to the full range of data
+            const dates = _allDailyData.map(d => d.dateObj).filter(Boolean);
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            document.getElementById('startDateFilter').value = minDate.toISOString().split('T')[0];
+            document.getElementById('endDateFilter').value = maxDate.toISOString().split('T')[0];
+            
+            // Initial render
+            filterAndRenderDashboard(minDate, maxDate);
+            
+            // Setup Event Listeners
+            document.getElementById('filterBtn').addEventListener('click', () => {
+                const start = document.getElementById('startDateFilter').value;
+                const end = document.getElementById('endDateFilter').value;
+                const startDate = start ? new Date(start) : null;
+                const endDate = end ? new Date(end) : null;
+                if(endDate) endDate.setHours(23, 59, 59); // Include full end day
+                filterAndRenderDashboard(startDate, endDate);
+            });
+            
+            document.getElementById('kpiGrowthCard').addEventListener('click', () => {
+                openModal('एकूण वाढ (Growth) - तपशील', _currentStaffPerformance);
+            });
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            document.getElementById('detailsModal').addEventListener('click', (e) => {
+                if(e.target.id === 'detailsModal') closeModal(); // Close if clicked on overlay
+            });
         }
 
         // Load the dashboard when the page is ready
         document.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>
-
 </html>
