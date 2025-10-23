@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मिशन ५ कोटी - डॅशबोर्ड</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #262223; color: white; margin: 0; padding: 20px; }
+        .dashboard-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card { background-color: #332e2f; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-align: center; }
+        .card h3 { margin: 0; font-size: 16px; color: #a0a0a0; text-transform: uppercase; }
+        .card .value { font-size: 36px; font-weight: bold; margin: 10px 0; color: #47b2ff; }
+        .card .unit { font-size: 18px; color: #a0a0a0; }
+        .chart-card { grid-column: 1 / -1; background-color: #332e2f; padding: 20px; border-radius: 8px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 32px; color: #fff; }
+        .header p { font-size: 18px; color: #ccc; }
+        .loader { text-align: center; font-size: 24px; padding: 50px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>मिशन ५ कोटी - थेट प्रगती</h1>
+        <p id="targetDateText">अंतिम दिनांक: ...</p>
+    </div>
+
+    <div class="dashboard-container" id="dashboardContent" style="display:none;">
+        <div class="card">
+            <h3>एकूण वाढ (Growth)</h3>
+            <div class="value" id="totalGrowth">...</div>
+            <div class="unit">कोटी</div>
+        </div>
+        <div class="card">
+            <h3>ध्येयपूर्ती (%)</h3>
+            <div class="value" id="goalAchievement">% ...</div>
+        </div>
+        <div class="card">
+            <h3>सध्याची थकबाकी</h3>
+            <div class="value" id="currentOutstanding">...</div>
+            <div class="unit">कोटी</div>
+        </div>
+        <div class="card">
+            <h3>राहिलेले दिवस</h3>
+            <div class="value" id="daysLeft">...</div>
+        </div>
+        <div class="chart-card">
+            <h3>ध्येय प्रगती</h3>
+            <canvas id="goalProgressChart" style="max-height: 150px;"></canvas>
+        </div>
+    </div>
+    <div id="loader" class="loader">लोड होत आहे...</div>
+
+    <script>
+        // इथे तुमची प्रकाशित केलेली Apps Script URL टाका
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRzhFuj9Hue3n63c46VfSDMrDhwQYlSj-Fh4YQkLcuYoVj4hUPO8mvWs-06M1nxa_o/exec";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchData();
+        });
+
+        function fetchData() {
+            fetch(WEB_APP_URL + "?action=getDashboardMetrics")
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboardUI(data);
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('dashboardContent').style.display = 'grid';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loader').innerText = "डेटा लोड करताना त्रुटी आली.";
+                });
+        }
+
+        function formatToCrore(value) {
+            if (isNaN(value)) return '...';
+            return (Number(value) / 10000000).toFixed(2);
+        }
+
+        function updateDashboardUI(metrics) {
+            const targetDate = new Date(metrics.Target_Date);
+            document.getElementById('targetDateText').innerText = `अंतिम दिनांक: ${targetDate.toLocaleDateString('mr-IN')}`;
+            document.getElementById('totalGrowth').innerText = formatToCrore(metrics.Total_Growth);
+            document.getElementById('goalAchievement').innerText = `% ${Number(metrics.Goal_Achievement_Percent).toFixed(2)}`;
+            document.getElementById('currentOutstanding').innerText = formatToCrore(metrics.Current_Outstanding);
+            document.getElementById('daysLeft').innerText = metrics.Days_Left;
+            createGoalProgressChart(metrics.Goal_Achievement_Percent);
+        }
+
+        function createGoalProgressChart(percentage) {
+            const ctx = document.getElementById('goalProgressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['पूर्ण झाले', 'बाकी'],
+                    datasets: [{
+                        data: [percentage, 100 - percentage],
+                        backgroundColor: ['#47b2ff', '#555'],
+                        borderColor: '#332e2f',
+                        borderWidth: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

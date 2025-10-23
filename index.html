@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रोजची माहिती भरा</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { max-width: 400px; width: 100%; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h3 { text-align: center; color: #333; margin-top: 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; transition: background-color 0.3s; }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #status { margin-top: 15px; text-align: center; font-weight: bold; min-height: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>रोजची माहिती भरा</h3>
+        <form id="dataForm">
+            <label for="staffName">कर्मचाऱ्याचे नाव:</label>
+            <select id="staffName" name="staffName" required>
+                <option value="">लोड होत आहे...</option>
+            </select>
+            <label for="recoveryAmount">एकूण वसुली रक्कम:</label>
+            <input type="number" id="recoveryAmount" name="recoveryAmount" required>
+            <label for="recoveryAccounts">वसुली खात्यांची संख्या:</label>
+            <input type="number" id="recoveryAccounts" name="recoveryAccounts" required>
+            <label for="disbursementAmount">नवीन वाटप रक्कम:</label>
+            <input type="number" id="disbursementAmount" name="disbursementAmount" required>
+            <label for="disbursementAccounts">नवीन वाटप खात्यांची संख्या:</label>
+            <input type="number" id="disbursementAccounts" name="disbursementAccounts" required>
+            <button type="submit" id="submitBtn">माहिती जमा करा</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // इथे तुमची प्रकाशित केलेली Apps Script URL टाका (तीच जी डॅशबोर्डमध्ये टाकली)
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRzhFuj9Hue3n63c46VfSDMrDhwQYlSj-Fh4YQkLcuYoVj4hUPO8mvWs-06M1nxa_o/exec";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch(WEB_APP_URL + "?action=getStaffNames")
+                .then(response => response.json())
+                .then(names => {
+                    const select = document.getElementById("staffName");
+                    select.innerHTML = '<option value="">निवडा</option>';
+                    names.forEach(name => {
+                        const option = document.createElement("option");
+                        option.text = name;
+                        option.value = name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching staff names:', error);
+                    document.getElementById("staffName").innerHTML = '<option value="">त्रुटी!</option>';
+                });
+        });
+
+        document.getElementById("dataForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById("submitBtn");
+            const statusDiv = document.getElementById("status");
+
+            const formData = {
+                staffName: this.staffName.value,
+                recoveryAmount: this.recoveryAmount.value,
+                recoveryAccounts: this.recoveryAccounts.value,
+                disbursementAmount: this.disbursementAmount.value,
+                disbursementAccounts: this.disbursementAccounts.value
+            };
+            
+            submitBtn.disabled = true;
+            statusDiv.innerText = "जमा होत आहे...";
+            statusDiv.style.color = 'black';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    statusDiv.innerText = data.message;
+                    statusDiv.style.color = 'green';
+                    document.getElementById("dataForm").reset();
+                } else {
+                    statusDiv.innerText = data.message;
+                    statusDiv.style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusDiv.innerText = "त्रुटी! इंटरनेट कनेक्शन तपासा.";
+                statusDiv.style.color = 'red';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                setTimeout(() => { statusDiv.innerText = ''; }, 4000);
+            });
+        });
+    </script>
+</body>
+</html>
