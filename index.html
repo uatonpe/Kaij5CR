@@ -3,105 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Data Entry Form</title>
+    <title>Daily Data Entry | Mission 5 CR</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #1c3d5a; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,37,86,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #1a3b5d; margin-top: 0; margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
-        button:hover { background-color: #0056b3; }
-        #message { text-align: center; margin-top: 15px; font-weight: bold; }
-        .success { color: green; }
-        .error { color: red; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #334e68; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cdd3db; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border-color 0.3s, box-shadow 0.3s; }
+        input:focus, select:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        button { width: 100%; padding: 14px; background: linear-gradient(90deg, #007bff, #0056b3); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        button:hover { transform: scale(1.02); }
+        button:disabled { background: #a0aec0; cursor: not-allowed; }
+        #message { text-align: center; margin-top: 20px; font-weight: bold; font-size: 16px; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>रोजचा डेटा टाका</h2>
+        <h2>🚀 दैनिक डेटा एंट्री</h2>
         <form id="dataForm">
+            <div class="form-group">
+                <label for="reportDate">तारीख:</label>
+                <input type="date" id="reportDate" name="reportDate" required>
+            </div>
             <div class="form-group">
                 <label for="staffName">कर्मचाऱ्याचे नाव:</label>
                 <select id="staffName" name="staffName" required>
-                    <!-- Staff names will be loaded here from Google Sheet -->
-                    <option value="">नाव निवडा...</option>
+                    <option value="">लोड होत आहे...</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="newDisbursement">नवीन वाटप (रक्कम):</label>
-                <input type="number" id="newDisbursement" name="newDisbursement" required>
+                <input type="number" id="newDisbursement" name="newDisbursement" value="0" required>
             </div>
             <div class="form-group">
                 <label for="recoveryAmount">वसुली (रक्कम):</label>
-                <input type="number" id="recoveryAmount" name="recoveryAmount" required>
+                <input type="number" id="recoveryAmount" name="recoveryAmount" value="0" required>
             </div>
-            <button type="submit">सबमिट करा</button>
+            <button type="submit" id="submitBtn">सबमिट करा</button>
         </form>
         <div id="message"></div>
     </div>
 
     <script>
-        // स्टेप १ मध्ये StaffMaster शीट साठी बनवलेली CSV URL इथे टाका
-        const STAFF_MASTER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzuRc4paY-dZ5cO9uoj09AV3jO14-VULxHInuxd4y9Cn441mWhBKT0iPHQf3RO1Q4w8qbfDbAxLvjc/pub?gid=1254007896&single=true&output=csv'; 
-        
-        // स्टेप २ मध्ये Apps Script Deploy करून मिळालेली URL इथे टाका
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCdda515TCqGXH1ewWZPoEFCttnfc0mMKmRXgAXUQvunJpAb_j8Tl3S2myC-oRHsL9/exec';
+        // ▼▼▼▼▼ तुमची माहिती इथे भरा ▼▼▼▼▼
+        const API_KEY = 'AIzaSyADpmUttHbznSowws1nk19BmJ7TjktsApU';
+        const SHEET_ID = 'https://docs.google.com/spreadsheets/d/1Mx7s64XhfbzwRNmUJ97Y9pep58UZ5L-yzENA34R23x8/edit?usp=sharing'; // तुमच्या शीटचा आयडी
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzGBxXARbeSw8kddqoyTkWp_Am6_JIQ5FSmhkVIhtJi8FThg-iZdbtws4DP2prxAoOk/exec';
+        const STAFF_MASTER_SHEET = 'StaffMaster';
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        // Load staff names into the dropdown
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch(STAFF_MASTER_URL)
-                .then(response => response.text())
-                .then(data => {
-                    const staffSelect = document.getElementById('staffName');
-                    const rows = data.split('\n').slice(1); // Skip header row
-                    rows.forEach(row => {
-                        const cols = row.split(',');
-                        if (cols[0]) { // Ensure name exists
+        const staffSelect = document.getElementById('staffName');
+        const reportDateInput = document.getElementById('reportDate');
+        const form = document.getElementById('dataForm');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Set today's date by default
+        reportDateInput.valueAsDate = new Date();
+
+        // Load staff names into the dropdown from Google Sheet
+        async function loadStaffNames() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${STAFF_MASTER_SHEET}!A2:A?key=${API_KEY}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const staffNames = data.values;
+
+                if (staffNames && staffNames.length > 0) {
+                    staffSelect.innerHTML = '<option value="">नाव निवडा...</option>';
+                    staffNames.forEach(row => {
+                        if (row[0]) {
                             const option = document.createElement('option');
-                            option.value = cols[0].trim();
-                            option.textContent = cols[0].trim();
+                            option.value = row[0].trim();
+                            option.textContent = row[0].trim();
                             staffSelect.appendChild(option);
                         }
                     });
-                });
-        });
+                } else {
+                    staffSelect.innerHTML = '<option value="">कर्मचारी सापडले नाहीत</option>';
+                }
+            } catch (error) {
+                console.error("Error loading staff names:", error);
+                staffSelect.innerHTML = '<option value="">एरर!</option>';
+            }
+        }
 
-        const form = document.getElementById('dataForm');
-        const messageDiv = document.getElementById('message');
-
-        form.addEventListener('submit', (e) => {
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            messageDiv.textContent = 'डेटा पाठवत आहे...';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'पाठवत आहे...';
+            messageDiv.textContent = '';
             messageDiv.className = '';
 
-            const formData = {
-                staffName: document.getElementById('staffName').value,
-                newDisbursement: document.getElementById('newDisbursement').value,
-                recoveryAmount: document.getElementById('recoveryAmount').value
-            };
+            const formData = new FormData(form);
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(formData),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    messageDiv.textContent = 'डेटा यशस्वीरित्या सेव्ह झाला!';
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                const resultText = await response.text();
+                
+                if (response.ok) {
+                    messageDiv.textContent = resultText;
                     messageDiv.className = 'success';
                     form.reset();
+                    reportDateInput.valueAsDate = new Date(); // Reset date after submission
                 } else {
-                    throw new Error(data.message);
+                    throw new Error(resultText);
                 }
-            })
-            .catch(error => {
+
+            } catch (error) {
                 messageDiv.textContent = 'त्रुटी: ' + error.message;
                 messageDiv.className = 'error';
-            });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'सबमिट करा';
+            }
         });
+
+        document.addEventListener('DOMContentLoaded', loadStaffNames);
     </script>
 </body>
 </html>
