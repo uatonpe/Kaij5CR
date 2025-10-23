@@ -3,109 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>मिशन ५ कोटी - डॅशबोर्ड</title>
+    <title>कामगिरी डॅशबोर्ड</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #262223; color: white; margin: 0; padding: 20px; }
-        .dashboard-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .card { background-color: #332e2f; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-align: center; }
-        .card h3 { margin: 0; font-size: 16px; color: #a0a0a0; text-transform: uppercase; }
-        .card .value { font-size: 36px; font-weight: bold; margin: 10px 0; color: #47b2ff; }
-        .card .unit { font-size: 18px; color: #a0a0a0; }
-        .chart-card { grid-column: 1 / -1; background-color: #332e2f; padding: 20px; border-radius: 8px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 32px; color: #fff; }
-        .header p { font-size: 18px; color: #ccc; }
-        .loader { text-align: center; font-size: 24px; padding: 50px; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #f4f7f9;
+            --card-background: #ffffff; --text-color: #34495e; --header-color: #2c3e50;
+            --green: #2ecc71; --orange: #f39c12; --purple: #9b59b6; --red: #e74c3c;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; color: var(--text-color); }
+        .container { max-width: 1400px; margin: auto; }
+        .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px; }
+        .header h1 { color: var(--header-color); margin: 0; font-size: 28px; }
+        .date-filter { display: flex; align-items: center; gap: 10px; background: var(--card-background); padding: 8px 15px; border-radius: 8px; box-shadow: var(--shadow); }
+        #dashboardDate { border: none; font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--primary-color); background: transparent; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--card-background); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .card-icon { font-size: 22px; height: 50px; width: 50px; border-radius: 50%; display: grid; place-items: center; }
+        .card-title { font-size: 16px; font-weight: 500; color: #7f8c8d; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary-color); }
+        .kpi-value.small { font-size: 20px; color: #7f8c8d; font-weight: 500;}
+        #goal-card .kpi-value { font-size: 34px; }
+        .progress-bar-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .progress-bar { height: 10px; width: 0%; background-color: var(--green); border-radius: 10px; transition: width 0.5s ease-in-out; }
+        .full-width-card { grid-column: 1 / -1; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+        th { background-color: #f7f9fc; font-weight: 600; color: var(--primary-color); }
+        tbody tr:hover { background-color: #fcfcfc; }
+        .loader { text-align: center; padding: 50px; font-size: 20px; font-weight: 500; color: var(--secondary-color); grid-column: 1 / -1;}
+        #chart-container { height: 400px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>मिशन ५ कोटी - थेट प्रगती</h1>
-        <p id="targetDateText">अंतिम दिनांक: ...</p>
-    </div>
-
-    <div class="dashboard-container" id="dashboardContent" style="display:none;">
-        <div class="card">
-            <h3>एकूण वाढ (Growth)</h3>
-            <div class="value" id="totalGrowth">...</div>
-            <div class="unit">कोटी</div>
+    <div class="container">
+        <div class="header">
+            <h1>डॅशबोर्ड</h1>
+            <div class="date-filter">
+                <label for="dashboardDate"><strong>तारीख:</strong></label>
+                <input type="date" id="dashboardDate">
+            </div>
         </div>
-        <div class="card">
-            <h3>ध्येयपूर्ती (%)</h3>
-            <div class="value" id="goalAchievement">% ...</div>
-        </div>
-        <div class="card">
-            <h3>सध्याची थकबाकी</h3>
-            <div class="value" id="currentOutstanding">...</div>
-            <div class="unit">कोटी</div>
-        </div>
-        <div class="card">
-            <h3>राहिलेले दिवस</h3>
-            <div class="value" id="daysLeft">...</div>
-        </div>
-        <div class="chart-card">
-            <h3>ध्येय प्रगती</h3>
-            <canvas id="goalProgressChart" style="max-height: 150px;"></canvas>
+        <div id="dashboard-content" class="dashboard-grid">
+            <!-- Data will be loaded here -->
         </div>
     </div>
-    <div id="loader" class="loader">लोड होत आहे...</div>
 
     <script>
-        // इथे तुमची प्रकाशित केलेली Apps Script URL टाका
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPirEHcp--8SOeixOv17UpzuvyyrnQ_aUKzccTNwHQW7kSuMjasGpncmJ_rQRZo8rC/exec";
-
-        document.addEventListener("DOMContentLoaded", function() {
-            fetchData();
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwr6oc3kBnaw42bjPG3FsjMuTWBrJsFd9asys_MjtWmUSeqqxVykuO7t9gjK5Fl1Ra0/exec"; // तुमची नवीन URL इथे टाका
+        
+        const dateInput = document.getElementById('dashboardDate');
+        const contentDiv = document.getElementById('dashboard-content');
+        let staffChart = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            fetchDashboardData(today);
         });
 
-        function fetchData() {
-            fetch(WEB_APP_URL + "?action=getDashboardMetrics")
+        dateInput.addEventListener('change', () => {
+            fetchDashboardData(dateInput.value);
+        });
+
+        function fetchDashboardData(date) {
+            contentDiv.innerHTML = `<div class="loader">डेटा लोड होत आहे...</div>`;
+            
+            fetch(`${WEB_APP_URL}?date=${date}`)
                 .then(response => response.json())
                 .then(data => {
-                    updateDashboardUI(data);
-                    document.getElementById('loader').style.display = 'none';
-                    document.getElementById('dashboardContent').style.display = 'grid';
+                    if (data.status === 'success') {
+                        renderDashboard(data);
+                    } else {
+                        contentDiv.innerHTML = `<div class="card full-width-card"><p>त्रुटी: ${data.message}</p></div>`;
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('loader').innerText = "डेटा लोड करताना त्रुटी आली.";
+                    contentDiv.innerHTML = `<div class="card full-width-card"><p>डेटा लोड करताना त्रुटी आली. कृपया इंटरनेट कनेक्शन तपासा.</p></div>`;
                 });
         }
-
-        function formatToCrore(value) {
-            if (isNaN(value)) return '...';
-            return (Number(value) / 10000000).toFixed(2);
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
         }
 
-        function updateDashboardUI(metrics) {
-            const targetDate = new Date(metrics.Target_Date);
-            document.getElementById('targetDateText').innerText = `अंतिम दिनांक: ${targetDate.toLocaleDateString('mr-IN')}`;
-            document.getElementById('totalGrowth').innerText = formatToCrore(metrics.Total_Growth);
-            document.getElementById('goalAchievement').innerText = `% ${Number(metrics.Goal_Achievement_Percent).toFixed(2)}`;
-            document.getElementById('currentOutstanding').innerText = formatToCrore(metrics.Current_Outstanding);
-            document.getElementById('daysLeft').innerText = metrics.Days_Left;
-            createGoalProgressChart(metrics.Goal_Achievement_Percent);
-        }
+        function renderDashboard(data) {
+            const overall = data.overallKPIs;
+            const daily = data.dailyData;
 
-        function createGoalProgressChart(percentage) {
-            const ctx = document.getElementById('goalProgressChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
+            const goalPercentage = parseFloat(overall.goalAchievementPercentage);
+            
+            contentDiv.innerHTML = `
+                <!-- Overall KPIs -->
+                <div class="card" id="goal-card">
+                    <div class="card-header"><div class="card-icon" style="color:var(--purple); background-color:#f4eef7;"><i class="fas fa-bullseye"></i></div><div class="card-title">ध्येयपूर्ती (Growth)</div></div>
+                    <div class="kpi-value">${goalPercentage.toFixed(2)}%</div>
+                    <div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(goalPercentage, 100)}%;"></div></div>
+                    <div class="kpi-value small">लक्ष्य: ${formatCurrency(overall.target)}</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-chart-line"></i></div><div class="card-title">एकूण वाढ</div></div>
+                    <div class="kpi-value">${formatCurrency(overall.growth)}</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><div class="card-icon" style="color:var(--primary-color); background-color:#eaf3fb;"><i class="fas fa-wallet"></i></div><div class="card-title">सध्याची थकबाकी</div></div>
+                    <div class="kpi-value">${formatCurrency(overall.currentOutstanding)}</div>
+                </div>
+                
+                <!-- Daily KPIs -->
+                <div class="card">
+                    <div class="card-header"><div class="card-icon" style="color:var(--green); background-color:#eaf9e9;"><i class="fas fa-hand-holding-dollar"></i></div><div class="card-title">आजची वसुली</div></div>
+                    <div class="kpi-value">${formatCurrency(daily.totalRecovery)}</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><div class="card-icon" style="color:var(--orange); background-color:#fef4e6;"><i class="fas fa-comments-dollar"></i></div><div class="card-title">आजचे वाटप</div></div>
+                    <div class="kpi-value">${formatCurrency(daily.totalDisbursement)}</div>
+                </div>
+                
+                <div class="card full-width-card">
+                    <h3>आजची कर्मचारी कामगिरी (${new Date(dateInput.value).toLocaleDateString('mr-IN')})</h3>
+                    <table>
+                        <thead><tr><th>कर्मचारी</th><th>नवीन खाती</th><th>वाटप रक्कम</th><th>वसुली रक्कम</th></tr></thead>
+                        <tbody id="staff-table-body"></tbody>
+                    </table>
+                </div>
+                
+                <div class="card full-width-card">
+                    <h3>आजची वसुली (चार्ट)</h3>
+                    <div id="chart-container"><canvas id="staffPerformanceChart"></canvas></div>
+                </div>
+            `;
+            
+            const tableBody = document.getElementById('staff-table-body');
+            const staffPerformance = daily.staffPerformance.filter(s => s.disbursement > 0 || s.recovery > 0);
+            
+            if(staffPerformance.length === 0){
+                 tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">या तारखेसाठी कोणताही डेटा उपलब्ध नाही.</td></tr>`;
+            } else {
+                staffPerformance.forEach(staff => {
+                    tableBody.innerHTML += `<tr>
+                        <td>${staff.name}</td><td>${staff.newAccounts}</td>
+                        <td>${formatCurrency(staff.disbursement)}</td><td>${formatCurrency(staff.recovery)}</td>
+                    </tr>`;
+                });
+            }
+            createOrUpdateChart(staffPerformance);
+        }
+        
+        function createOrUpdateChart(staffData) {
+            const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
+            const labels = staffData.map(s => s.name);
+            const recoveryData = staffData.map(s => s.recovery);
+            if (staffChart) staffChart.destroy();
+            staffChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: ['पूर्ण झाले', 'बाकी'],
+                    labels: labels,
                     datasets: [{
-                        data: [percentage, 100 - percentage],
-                        backgroundColor: ['#47b2ff', '#555'],
-                        borderColor: '#332e2f',
-                        borderWidth: 5
+                        label: 'वसुली रक्कम (₹)', data: recoveryData,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1, borderRadius: 5
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
                 }
             });
         }

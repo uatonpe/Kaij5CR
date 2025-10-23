@@ -3,161 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>मिशन ५ कोटी - डॅशबोर्ड</title>
-    <!-- Chart.js Library for graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>रोजचा डेटा टाका</title>
     <style>
-        /* CSS Code - Power BI Look (No changes here) */
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 1400px; margin: auto; }
-        header { text-align: center; margin-bottom: 30px; color: #1a237e; }
-        .card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .kpi-value { font-size: 2.2em; font-weight: bold; color: #1a237e; margin: 10px 0; }
-        .progress-bar-container { background-color: #e0e0e0; border-radius: 5px; height: 10px; width: 100%; }
-        .progress-bar { background-color: #4caf50; height: 100%; border-radius: 5px; width: 0%; transition: width 0.5s ease-in-out; }
-        .full-width { grid-column: 1 / -1; }
-        #staffTable { width: 100%; border-collapse: collapse; }
-        #staffTable th, #staffTable td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        #staffTable th { background-color: #f2f2f2; }
-        .data-form { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
-        .form-group { display: flex; flex-direction: column; flex-grow: 1; }
-        .form-group label { margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
-        .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
-        .form-button { padding: 10px 20px; border: none; border-radius: 4px; background-color: #1a237e; color: white; font-size: 1em; cursor: pointer; height: 42px; }
-        .form-button:hover { background-color: #283593; }
-        #form-status { margin-top: 10px; font-weight: bold; }
-        .success { color: green; }
-        .error { color: red; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        :root { --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #ecf0f1; --card-background: #ffffff; --text-color: #34495e; --border-color: #bdc3c7; --success-color: #2ecc71; --error-color: #e74c3c; --shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+        .container { width: 100%; max-width: 1200px; background: var(--card-background); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        h2 { margin: 0; color: var(--primary-color); font-size: 24px; }
+        .date-picker-container { display: flex; align-items: center; gap: 10px; }
+        label { font-weight: 500; color: var(--text-color); }
+        #entryDate { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; color: var(--primary-color); }
+        .table-header { display: grid; grid-template-columns: 2.5fr 1fr 1.5fr 1.5fr 0.5fr; gap: 15px; padding: 10px 15px; font-weight: 600; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); margin-bottom: 10px; }
+        .data-row { display: grid; grid-template-columns: 2.5fr 1fr 1.5fr 1.5fr 0.5fr; gap: 15px; align-items: center; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; }
+        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 14px; box-sizing: border-box; }
+        button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; color: white; }
+        .action-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; }
+        #add-row-btn { background-color: var(--success-color); }
+        #submit-all-btn { background-color: var(--secondary-color); }
+        .delete-btn { background: none; border: none; color: var(--error-color); cursor: pointer; font-size: 22px; }
+        #status-message { margin-top: 20px; text-align: center; font-weight: 500; min-height: 24px; padding: 10px; border-radius: 6px; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.5s linear; }
+        #status-message.success { background-color: #e8f8f2; color: #27ae60; visibility: visible; opacity: 1; }
+        #status-message.error { background-color: #fdeded; color: #c0392b; visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HTML Part - No changes here -->
-        <header>
-            <h1>मिशन ५ कोटी - प्रगती ट्रॅकर</h1>
-            <p>अंतिम तारीख: 12/02/2027</p>
-        </header>
-
-        <main class="grid-container">
-            <section class="card full-width">
-                <h2>रोजचा डेटा टाका</h2>
-                <form id="data-entry-form" class="data-form">
-                    <div class="form-group"><label for="staffName">कर्मचारी नाव</label><select id="staffName" name="staffName" required></select></div>
-                    <div class="form-group"><label for="newAccounts">नवीन खाती</label><input type="number" id="newAccounts" name="newAccounts" value="0" required></div>
-                    <div class="form-group"><label for="disbursement">वाटप रक्कम</label><input type="number" id="disbursement" name="disbursement" value="0" required></div>
-                    <div class="form-group"><label for="recovery">वसुली रक्कम</label><input type="number" id="recovery" name="recovery" value="0" required></div>
-                    <button type="submit" class="form-button">सबमिट करा</button>
-                </form>
-                <p id="form-status"></p>
-            </section>
-            <div class="card">
-                <h2>ध्येयपूर्ती (Goal Achievement)</h2><p id="goalPercent" class="kpi-value">--%</p><div class="progress-bar-container"><div id="goalProgressBar" class="progress-bar"></div></div>
-            </div>
-            <div class="card"><h2>झालेली वाढ (Total Growth)</h2><p id="growthAmount" class="kpi-value">-- कोटी</p></div>
-            <div class="card"><h2>एकूण वाटप (Disbursement)</h2><p id="totalDisbursement" class="kpi-value">-- कोटी</p></div>
-            <div class="card"><h2>एकूण वसुली (Recovery)</h2><p id="totalRecovery" class="kpi-value">-- कोटी</p></div>
-            <div class="card"><h2>वाटप vs वसुली</h2><canvas id="disbursementRecoveryChart"></canvas></div>
-            <div class="card"><h2>कर्मचारी योगदान (Top Performers)</h2><canvas id="staffContributionChart"></canvas></div>
-            <section class="card full-width">
-                <h2>कर्मचारी निहाय कामगिरी (Staff Wise Performance)</h2>
-                <table id="staffTable"><thead><tr><th>कर्मचारी नाव</th><th>एकूण वाटप</th><th>एकूण वसुली</th><th>सध्याची पोझिशन</th></tr></thead><tbody></tbody></table>
-            </section>
-        </main>
+        <div class="header"><h2>रोजचा डेटा टाका</h2><div class="date-picker-container"><label for="entryDate">तारीख:</label><input type="date" id="entryDate"></div></div>
+        <div class="table-header"><div>कर्मचारी</div><div>नवीन खाती</div><div>वाटप रक्कम</div><div>वसुली रक्कम</div><div>कृती</div></div>
+        <div id="data-rows-container"></div>
+        <div class="action-buttons"><button id="add-row-btn">नवीन कर्मचारी जोडा</button><button id="submit-all-btn">सर्व डेटा जमा करा</button></div>
+        <div id="status-message"></div>
     </div>
-
+    <template id="data-row-template">
+        <div class="data-row">
+            <div><select class="staffName"><option value="">निवडा</option></select></div>
+            <div><input type="number" class="newAccounts" placeholder="0"></div>
+            <div><input type="number" class="disbursement" placeholder="0"></div>
+            <div><input type="number" class="recovery" placeholder="0"></div>
+            <div><button class="delete-btn">🗑️</button></div>
+        </div>
+    </template>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzXkcgY5oBM84nUgcniZQj-14nJHWVpcNXMZ3rPzd-pYHOd1ix2qboElWYQo4VJoBmM/exec';
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwr6oc3kBnaw42bjPG3FsjMuTWBrJsFd9asys_MjtWmUSeqqxVykuO7t9gjK5Fl1Ra0/exec"; // तुमची तीच URL इथे टाका जी डॅशबोर्डमध्ये टाकली आहे.
         
-        // --- SCRIPT PART ---
-        // Global chart instances
-        let disbursementRecoveryChartInstance = null;
-        let staffContributionChartInstance = null;
-
+        const rowsContainer = document.getElementById('data-rows-container');
+        const entryDateInput = document.getElementById('entryDate');
+        const statusMessage = document.getElementById('status-message');
+        const rowTemplate = document.getElementById('data-row-template');
+        
+        let staffNamesList = [];
+        
+        // Fetch staff names by calling the main doGet function without any parameters
+        // This is a workaround, a dedicated getStaff action would be better.
+        // For now, it will fetch all dashboard data just to get the staff list.
         document.addEventListener('DOMContentLoaded', () => {
-            initializeDashboard();
-            const form = document.getElementById('data-entry-form');
-            form.addEventListener('submit', handleFormSubmit);
+            entryDateInput.valueAsDate = new Date();
+             fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    // Extract staff names from the daily performance object
+                    if (data.status === 'success' && data.dailyData.staffPerformance) {
+                        staffNamesList = data.dailyData.staffPerformance.map(staff => staff.name);
+                        addNewRow(); // Add first row
+                    } else {
+                        showStatus('कर्मचाऱ्यांची यादी लोड होऊ शकली नाही.', 'error');
+                    }
+                }).catch(() => showStatus('त्रुटी!', 'error'));
         });
 
-        function initializeDashboard() {
-            fetch(WEB_APP_URL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    populateStaffDropdown(data.staffList);
-                    updateDashboard(data.dashboardData);
-                })
-                .catch(error => {
-                    console.error('Error initializing dashboard:', error);
-                    alert("डॅशबोर्ड लोड करताना त्रुटी आली. कृपया तुमची Apps Script URL तपासा आणि तुम्ही फाईल ऑनलाइन होस्ट केली आहे का ते तपासा.");
-                });
-        }
-        
-        function handleFormSubmit(event) {
-            event.preventDefault();
-            const form = event.target;
-            const statusEl = document.getElementById('form-status');
-            const button = form.querySelector('button');
+        const addNewRow = () => {
+            const newRow = rowTemplate.content.cloneNode(true);
+            const select = newRow.querySelector('.staffName');
+            staffNamesList.forEach(name => select.add(new Option(name, name)));
+            rowsContainer.appendChild(newRow);
+        };
 
-            const formData = {
-                staffName: form.staffName.value,
-                newAccounts: form.newAccounts.value,
-                disbursement: form.disbursement.value,
-                recovery: form.recovery.value,
-            };
+        document.getElementById('add-row-btn').addEventListener('click', addNewRow);
+        document.getElementById('submit-all-btn').addEventListener('click', submitData);
 
-            statusEl.textContent = 'डेटा सबमिट होत आहे...';
-            statusEl.className = '';
-            button.disabled = true;
+        rowsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) e.target.closest('.data-row').remove();
+        });
 
-            // ***** MAJOR CHANGE IS HERE *****
-            // We are now doing a proper POST request and waiting for a proper response.
-            // This will only work when the HTML file is hosted online (e.g., GitHub Pages).
+        function submitData() {
+            const records = [];
+            const rows = rowsContainer.querySelectorAll('.data-row');
+            let isValid = true;
+
+            rows.forEach(row => {
+                const staffName = row.querySelector('.staffName').value;
+                const newAccounts = row.querySelector('.newAccounts').value || 0;
+                const disbursement = row.querySelector('.disbursement').value || 0;
+                const recovery = row.querySelector('.recovery').value || 0;
+                if (!staffName) { isValid = false; return; }
+                records.push({ staffName, newAccounts, disbursement, recovery });
+            });
+
+            if (!isValid) { showStatus('कृपया सर्व कर्मचाऱ्यांची निवड करा.', 'error'); return; }
+            if (records.length === 0) { showStatus('कृपया किमान एक नोंद करा.', 'error'); return; }
+
+            const payload = { date: entryDateInput.value, records: records };
+            
+            showStatus('जमा होत आहे...', 'success');
+            
             fetch(WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8', // Google Script requirement
-                },
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'application/json' }
             })
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === "success") {
-                    statusEl.textContent = 'डेटा यशस्वीरित्या सबमिट झाला! डॅशबोर्ड रिफ्रेश होत आहे...';
-                    statusEl.className = 'success';
-                    form.reset();
-                    setTimeout(() => {
-                        initializeDashboard();
-                        statusEl.textContent = '';
-                    }, 2000);
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success'){
+                    showStatus('डेटा यशस्वीरित्या जमा झाला!', 'success');
+                    rowsContainer.innerHTML = '';
+                    addNewRow();
                 } else {
-                    throw new Error(result.message || 'Unknown error from server');
+                    showStatus(`त्रुटी: ${data.message}`, 'error');
                 }
-            })
-            .catch(error => {
-                statusEl.textContent = 'त्रुटी: डेटा सबमिट झाला नाही. कृपया पुन्हा प्रयत्न करा.';
-                statusEl.className = 'error';
-                console.error('Error submitting form:', error);
-            })
-            .finally(() => {
-                button.disabled = false; // Re-enable the button
-            });
+            }).catch(() => showStatus('सबमिट करताना त्रुटी आली.', 'error'));
         }
-        
-        // Other functions (populateStaffDropdown, formatToCrore, updateDashboard, charts) are the same
-        // No changes needed in the functions below
-        function populateStaffDropdown(staffList) { const selectElement = document.getElementById('staffName'); selectElement.innerHTML = ''; staffList.forEach(name => { const option = document.createElement('option'); option.value = name; option.textContent = name; selectElement.appendChild(option); }); }
-        function formatToCrore(value) { if (Math.abs(value) >= 10000000) { return (value / 10000000).toFixed(2) + ' कोटी'; } else if (Math.abs(value) >= 100000) { return (value / 100000).toFixed(2) + ' लाख'; } return value.toLocaleString('en-IN'); }
-        function updateDashboard(data) { document.getElementById('goalPercent').textContent = `${data.goalAchievementPercentage}%`; document.getElementById('goalProgressBar').style.width = `${data.goalAchievementPercentage}%`; document.getElementById('growthAmount').textContent = formatToCrore(data.growth); document.getElementById('totalDisbursement').textContent = formatToCrore(data.totalDisbursement); document.getElementById('totalRecovery').textContent = formatToCrore(data.totalRecovery); const tableBody = document.querySelector('#staffTable tbody'); tableBody.innerHTML = ''; for (const staffName in data.staffPerformance) { const staff = data.staffPerformance[staffName]; const row = `<tr><td>${staffName}</td><td>${staff.disbursement.toLocaleString('en-IN')}</td><td>${staff.recovery.toLocaleString('en-IN')}</td><td>${staff.currentOutstanding.toLocaleString('en-IN')}</td></tr>`; tableBody.innerHTML += row; } createDisbursementRecoveryChart(data.totalDisbursement, data.totalRecovery); createStaffContributionChart(data.staffPerformance); }
-        function createDisbursementRecoveryChart(disbursement, recovery) { if (disbursementRecoveryChartInstance) { disbursementRecoveryChartInstance.destroy(); } const ctx = document.getElementById('disbursementRecoveryChart').getContext('2d'); disbursementRecoveryChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['एकूण वाटप', 'एकूण वसुली'], datasets: [{ data: [disbursement, recovery], backgroundColor: ['#36A2EB', '#FF6384'], }] } }); }
-        function createStaffContributionChart(staffData) { if (staffContributionChartInstance) { staffContributionChartInstance.destroy(); } const staffNames = Object.keys(staffData); const staffGrowth = staffNames.map(name => staffData[name].disbursement - staffData[name].recovery); const ctx = document.getElementById('staffContributionChart').getContext('2d'); staffContributionChartInstance = new Chart(ctx, { type: 'bar', data: { labels: staffNames, datasets: [{ label: 'योगदान (वाटप - वसुली)', data: staffGrowth, backgroundColor: '#4BC0C0', }] }, options: { scales: { y: { beginAtZero: true } } } }); }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = type;
+            setTimeout(() => statusMessage.className = '', 4000);
+        }
     </script>
 </body>
 </html>
-
-
