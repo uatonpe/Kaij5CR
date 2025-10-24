@@ -3,47 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Data Entry | Mission 5 CR</title>
+    <title>Daily Data Entry (Team) | Mission 5 CR</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,37,86,0.1); width: 100%; max-width: 450px; }
-        h2 { text-align: center; color: #1a3b5d; margin-top: 0; margin-bottom: 25px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; color: #334e68; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cdd3db; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border-color 0.3s, box-shadow 0.3s; }
-        input:focus, select:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-        button { width: 100%; padding: 14px; background: linear-gradient(90deg, #007bff, #0056b3); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
-        button:hover { transform: scale(1.02); }
-        button:disabled { background: #a0aec0; cursor: not-allowed; }
-        #message { text-align: center; margin-top: 20px; font-weight: bold; font-size: 16px; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f0f4f8; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+        .container { 
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0,37,86,0.1); 
+            width: 100%; 
+            max-width: 800px;
+        }
+        h2 { 
+            text-align: center; 
+            color: #1a3b5d; 
+            margin-top: 0; 
+            margin-bottom: 25px; 
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            color: #334e68; 
+        }
+        input[type="date"], input[type="number"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #cdd3db; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            transition: border-color 0.3s, box-shadow 0.3s; 
+        }
+        input:focus { 
+            outline: none; 
+            border-color: #007bff; 
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1); 
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #e0e6ed;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f4f8;
+            font-weight: 600;
+            color: #1a3b5d;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .loader {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+        }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 20px;
+            background: linear-gradient(90deg, #28a745, #218838); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: transform 0.2s, background 0.3s; 
+        }
+        button:hover { 
+            transform: scale(1.02); 
+            background: linear-gradient(90deg, #218838, #1e7e34);
+        }
+        button:disabled { 
+            background: #a0aec0; 
+            cursor: not-allowed; 
+        }
+        #message { 
+            text-align: center; 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            white-space: pre-wrap;
+        }
         .success { color: #28a745; }
         .error { color: #dc3545; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🚀 दैनिक डेटा एंट्री</h2>
+        <h2>🚀 टीम दैनिक डेटा एंट्री</h2>
         <form id="dataForm">
             <div class="form-group">
                 <label for="reportDate">तारीख:</label>
                 <input type="date" id="reportDate" name="reportDate" required>
             </div>
-            <div class="form-group">
-                <label for="staffName">कर्मचाऱ्याचे नाव:</label>
-                <select id="staffName" name="staffName" required>
-                    <option value="">लोड होत आहे...</option>
-                </select>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>कर्मचाऱ्याचे नाव</th>
+                            <th>नवीन वाटप (रक्कम)</th>
+                            <th>वसुली (रक्कम)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr>
+                            <td colspan="3" class="loader">कर्मचाऱ्यांची यादी लोड होत आहे...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label for="newDisbursement">नवीन वाटप (रक्कम):</label>
-                <input type="number" id="newDisbursement" name="newDisbursement" value="0" required>
-            </div>
-            <div class="form-group">
-                <label for="recoveryAmount">वसुली (रक्कम):</label>
-                <input type="number" id="recoveryAmount" name="recoveryAmount" value="0" required>
-            </div>
-            <button type="submit" id="submitBtn">सबमिट करा</button>
+
+            <button type="submit" id="submitBtn">सर्व डेटा सबमिट करा</button>
         </form>
         <div id="message"></div>
     </div>
@@ -56,17 +148,17 @@
         const STAFF_MASTER_SHEET = 'StaffMaster';
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        const staffSelect = document.getElementById('staffName');
+        const tableBody = document.getElementById('dataTableBody');
         const reportDateInput = document.getElementById('reportDate');
         const form = document.getElementById('dataForm');
         const messageDiv = document.getElementById('message');
         const submitBtn = document.getElementById('submitBtn');
         
-        // Set today's date by default
+        // आजची तारीख डिफॉल्ट म्हणून सेट करा
         reportDateInput.valueAsDate = new Date();
 
-        // Load staff names into the dropdown from Google Sheet
-        async function loadStaffNames() {
+        // Google Sheet वरून कर्मचाऱ्यांची नावे लोड करून टेबल तयार करा
+        async function loadStaffTable() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${STAFF_MASTER_SHEET}!A2:A?key=${API_KEY}`;
             try {
                 const response = await fetch(url);
@@ -74,62 +166,115 @@
                 const staffNames = data.values;
 
                 if (staffNames && staffNames.length > 0) {
-                    staffSelect.innerHTML = '<option value="">नाव निवडा...</option>';
+                    let tableRowsHTML = '';
                     staffNames.forEach(row => {
                         if (row[0]) {
-                            const option = document.createElement('option');
-                            option.value = row[0].trim();
-                            option.textContent = row[0].trim();
-                            staffSelect.appendChild(option);
+                            const staffName = row[0].trim();
+                            tableRowsHTML += `
+                                <tr data-staff-name="${staffName}">
+                                    <td>${staffName}</td>
+                                    <td><input type="number" class="newDisbursement" value="0" min="0"></td>
+                                    <td><input type="number" class="recoveryAmount" value="0" min="0"></td>
+                                </tr>
+                            `;
                         }
                     });
+                    tableBody.innerHTML = tableRowsHTML;
                 } else {
-                    staffSelect.innerHTML = '<option value="">कर्मचारी सापडले नाहीत</option>';
+                    tableBody.innerHTML = '<tr><td colspan="3" class="loader">कर्मचारी सापडले नाहीत</td></tr>';
                 }
             } catch (error) {
                 console.error("Error loading staff names:", error);
-                staffSelect.innerHTML = '<option value="">एरर!</option>';
+                tableBody.innerHTML = '<tr><td colspan="3" class="loader">एरर! नावे लोड होऊ शकली नाहीत.</td></tr>';
             }
         }
 
-        // Handle form submission
+        // फॉर्म सबमिशन हाताळा
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault(); // फॉर्मला डिफॉल्ट सबमिट होण्यापासून थांबवा
             submitBtn.disabled = true;
-            submitBtn.textContent = 'पाठवत आहे...';
             messageDiv.textContent = '';
             messageDiv.className = '';
 
-            const formData = new FormData(form);
+            const reportDate = reportDateInput.value;
+            const tableRows = tableBody.querySelectorAll('tr');
+            
+            const entriesToSubmit = [];
+            // फक्त ज्या नोंदींमध्ये माहिती भरली आहे, त्यांना वेगळे काढा
+            tableRows.forEach(row => {
+                const staffName = row.dataset.staffName;
+                if (!staffName) return;
 
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: formData,
-                });
-                
-                const resultText = await response.text();
-                
-                if (response.ok) {
-                    messageDiv.textContent = resultText;
-                    messageDiv.className = 'success';
-                    form.reset();
-                    reportDateInput.valueAsDate = new Date(); // Reset date after submission
-                } else {
-                    throw new Error(resultText);
+                const newDisbursement = parseFloat(row.querySelector('.newDisbursement').value) || 0;
+                const recoveryAmount = parseFloat(row.querySelector('.recoveryAmount').value) || 0;
+
+                if (newDisbursement > 0 || recoveryAmount > 0) {
+                    entriesToSubmit.push({
+                        staffName,
+                        newDisbursement,
+                        recoveryAmount
+                    });
                 }
+            });
 
-            } catch (error) {
-                messageDiv.textContent = 'त्रुटी: ' + error.message;
+            if (entriesToSubmit.length === 0) {
+                messageDiv.textContent = 'कृपया किमान एका कर्मचाऱ्याची माहिती भरा.';
                 messageDiv.className = 'error';
-            } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'सबमिट करा';
+                return;
             }
+
+            let successCount = 0;
+            let errorCount = 0;
+            let errorMessages = [];
+
+            // प्रत्येक एंट्रीसाठी एक-एक करून सबमिट करा
+            for (let i = 0; i < entriesToSubmit.length; i++) {
+                const entry = entriesToSubmit[i];
+                submitBtn.textContent = `पाठवत आहे... (${i + 1}/${entriesToSubmit.length})`;
+
+                const formData = new FormData();
+                formData.append('reportDate', reportDate);
+                formData.append('staffName', entry.staffName);
+                formData.append('newDisbursement', entry.newDisbursement);
+                formData.append('recoveryAmount', entry.recoveryAmount);
+                
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        const errorText = await response.text();
+                        throw new Error(errorText || 'Server error');
+                    }
+                } catch (error) {
+                    errorCount++;
+                    errorMessages.push(`त्रुटी (${entry.staffName}): ${error.message}`);
+                }
+            }
+
+            // अंतिम निकाल दाखवा
+            if (errorCount === 0) {
+                messageDiv.textContent = `${successCount} नोंदी यशस्वीरित्या सबमिट झाल्या!`;
+                messageDiv.className = 'success';
+                // यशस्वी झाल्यावर फॉर्म आणि टेबल रिसेट करा
+                form.reset();
+                reportDateInput.valueAsDate = new Date();
+                loadStaffTable(); 
+            } else {
+                messageDiv.textContent = `यशस्वी: ${successCount} | अयशस्वी: ${errorCount}\n\nचुका:\n${errorMessages.join('\n')}`;
+                messageDiv.className = 'error';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'सर्व डेटा सबमिट करा';
         });
 
-        document.addEventListener('DOMContentLoaded', loadStaffNames);
+        document.addEventListener('DOMContentLoaded', loadStaffTable);
     </script>
 </body>
-
 </html>
