@@ -281,7 +281,8 @@
                     }
                     return obj;
                 });
-            } catch (error) {
+            } catch (error)
+             {
                 console.error(`Error fetching ${sheetName}:`, error);
                 document.body.innerHTML = `<h2 style="color:red; text-align:center;">'${sheetName}' शीटमधून डेटा लोड करण्यात अयशस्वी. कृपया तुमची API Key, Sheet ID आणि Sheet Sharing सेटिंग्ज तपासा.</h2>`;
                 return null;
@@ -368,35 +369,28 @@
             plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
         };
 
-        // ▼▼▼ तुमच्या मागणीनुसार पाय चार्टच्या लॉजिकमध्ये अचूक बदल केला आहे ▼▼▼
+        // ▼▼▼ तुमच्या मागणीनुसार फक्त या दोन तारखा बदलल्या आहेत ▼▼▼
         function renderCurrentMonthPieChart(monthlyData) {
-            // --- नवीन लॉजिक: निश्चित कालावधी आणि टार्गेटनुसार महिन्याचे ध्येय काढा ---
-            const totalTarget = parseFloat(_settings['Target']) || 50000000; // Settings मधून टार्गेट घ्या किंवा 5 कोटी डीफॉल्ट ठेवा
+            const totalTarget = parseFloat(_settings['Target']) || 50000000;
 
-            const fixedStartDate = new Date('2024-10-01T00:00:00');
-            const fixedEndDate = new Date('2025-02-12T23:59:59');
+            const fixedStartDate = new Date('2025-10-01T00:00:00');
+            const fixedEndDate = new Date('2027-02-12T23:59:59');
 
-            // कालावधीतील एकूण दिवस मोजा
             const timeDiff = fixedEndDate.getTime() - fixedStartDate.getTime();
             const totalDaysInPeriod = Math.ceil(timeDiff / (1000 * 3600 * 24));
             
-            // प्रत्येक दिवसाचे ध्येय (Daily Target) काढा
             const dailyTarget = totalDaysInPeriod > 0 ? totalTarget / totalDaysInPeriod : 0;
 
-            // चालू महिन्याचा डेटा मिळवा
             const now = new Date();
             const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth(); // 0-11 (जानेवारी=0)
+            const currentMonth = now.getMonth();
 
-            // चालू महिन्याचे एकूण दिवस काढा
             let daysInMonthForTarget = new Date(currentYear, currentMonth + 1, 0).getDate();
             
-            // शेवटच्या महिन्यासाठी (फेब्रुवारी २०२५) फक्त १२ दिवस मोजा
             if (currentYear === fixedEndDate.getFullYear() && currentMonth === fixedEndDate.getMonth()) {
                 daysInMonthForTarget = fixedEndDate.getDate();
             }
 
-            // चालू महिन्याचे ध्येय (Current Month Target) निश्चित करा
             const currentMonthTarget = dailyTarget * daysInMonthForTarget;
             
             const currentMonthKey = now.toISOString().slice(0, 7);
@@ -405,7 +399,6 @@
             const remainingTarget = Math.max(0, currentMonthTarget - achievedGrowth);
             const percentage = currentMonthTarget > 0 ? (achievedGrowth / currentMonthTarget) * 100 : 0;
             
-            // आकड्यांना अपडेट करणे
             document.getElementById('currentMonthAchieved').textContent = formatCurrencyPrecise(achievedGrowth);
             document.getElementById('currentMonthTarget').textContent = formatCurrencyPrecise(currentMonthTarget);
             document.getElementById('currentMonthProgressText').textContent = `${percentage.toFixed(1)}%`;
