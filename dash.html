@@ -126,33 +126,39 @@
         .grid-layout { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
         .chart-container, .table-container { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; }
         .chart-container { grid-column: span 12; height: 450px; }
-        .table-container { grid-column: span 12; overflow-x: auto; /* For mobile table scroll */ -webkit-overflow-scrolling: touch; }
+        .table-container { grid-column: span 12; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         @media (min-width: 1024px) {
             .chart-container:nth-child(1) { grid-column: span 5; }
             .chart-container:nth-child(2) { grid-column: span 7; }
         }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; /* Prevent table squishing on mobile */ }
-        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; /* Prevent text wrapping in table */ }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         tbody tr:hover { background-color: #f8fafc; }
         td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: right; }
 
         /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(15, 23, 42, 0.7);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000; backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background-color: var(--card-color); padding: 24px; border-radius: 16px;
-            width: 90%; max-width: 600px; max-height: 80vh;
-            display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--card-color); padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .modal-header h2 { margin: 0; font-size: 1.25rem; }
         .modal-close-btn { font-size: 2rem; color: var(--text-secondary); cursor: pointer; border: none; background: none; }
         .modal-body { overflow-y: auto; }
+
+        /* ▼▼▼ नवीन स्टाईल इथे जोडली आहे ▼▼▼ */
+        .chart-details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 24px;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        .chart-details span b {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .chart-details span b.positive {
+            color: var(--accent-secondary);
+        }
     </style>
 </head>
 <body>
@@ -207,12 +213,17 @@
             <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
             <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
             
-            <!-- ▼▼▼ नवीन पाय चार्ट इथे जोडला आहे ▼▼▼ -->
+            <!-- ▼▼▼ पाय चार्टच्या HTML मध्ये बदल केला आहे ▼▼▼ -->
             <div class="chart-container" style="grid-column: span 12; text-align: center;">
                 <h3>🎯 चालू महिन्याची प्रगती</h3>
-                <div style="position: relative; width: 70%; max-width: 300px; margin: auto; height: 300px;">
+                <div style="position: relative; width: 80%; max-width: 280px; margin: auto; height: 280px;">
                     <canvas id="currentMonthGoalChart"></canvas>
-                    <div id="currentMonthProgressText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 700; color: var(--text-primary);"></div>
+                    <div id="currentMonthProgressText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; color: var(--text-primary);"></div>
+                </div>
+                <!-- आकड्यांसाठी नवीन div जोडला आहे -->
+                <div class="chart-details">
+                    <span>पूर्ण: <b id="currentMonthAchieved" class="positive">₹ 0</b></span>
+                    <span>ध्येय: <b id="currentMonthTarget">₹ 0</b></span>
                 </div>
             </div>
             <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
@@ -351,7 +362,7 @@
             renderMonthlyTrendChart(monthlyData);
             renderStaffTable(staffPerformance);
             renderPerformerCards(staffPerformance);
-            renderCurrentMonthPieChart(monthlyData); // नवीन चार्ट फंक्शन कॉल
+            renderCurrentMonthPieChart(monthlyData);
         }
         
         let staffChartInstance, monthlyChartInstance, currentMonthPieChartInstance;
@@ -361,6 +372,7 @@
             plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
         };
 
+        // ▼▼▼ पाय चार्टच्या लॉजिकमध्ये बदल केला आहे ▼▼▼
         function renderCurrentMonthPieChart(monthlyData) {
             if (!_settings['Start Date'] || !_settings['End Date'] || !_settings['Target']) {
                 console.warn("Settings for pie chart are missing.");
@@ -384,6 +396,10 @@
             const remainingTarget = Math.max(0, averageMonthlyTarget - achievedGrowth);
 
             const percentage = averageMonthlyTarget > 0 ? (achievedGrowth / averageMonthlyTarget) * 100 : 0;
+            
+            // आकड्यांना अपडेट करणे
+            document.getElementById('currentMonthAchieved').textContent = formatCurrencyPrecise(achievedGrowth);
+            document.getElementById('currentMonthTarget').textContent = formatCurrencyPrecise(averageMonthlyTarget);
             document.getElementById('currentMonthProgressText').textContent = `${percentage.toFixed(1)}%`;
             document.getElementById('currentMonthProgressText').style.color = percentage >= 100 ? 'var(--accent-secondary)' : 'var(--text-primary)';
 
@@ -399,7 +415,8 @@
                         data: [achievedGrowth, remainingTarget],
                         backgroundColor: ['#22c55e', '#e2e8f0'],
                         borderColor: ['#ffffff'],
-                        borderWidth: 2,
+                        borderWidth: 4,
+                        hoverOffset: 4
                     }]
                 },
                 options: {
@@ -408,11 +425,21 @@
                     cutout: '75%',
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: false }
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw;
+                                    return `${label}: ${formatCurrencyPrecise(value)}`;
+                                }
+                            }
+                        }
                     }
                 }
             });
         }
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         function renderStaffPerformanceChart(staffData) {
             const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
