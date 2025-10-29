@@ -144,7 +144,6 @@
         .modal-close-btn { font-size: 2rem; color: var(--text-secondary); cursor: pointer; border: none; background: none; }
         .modal-body { overflow-y: auto; }
 
-        /* ▼▼▼ नवीन स्टाईल इथे जोडली आहे ▼▼▼ */
         .chart-details {
             display: flex;
             justify-content: space-around;
@@ -213,20 +212,17 @@
             <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
             <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
             
-            <!-- ▼▼▼ पाय चार्टच्या HTML मध्ये बदल केला आहे ▼▼▼ -->
             <div class="chart-container" style="grid-column: span 12; text-align: center;">
                 <h3>🎯 चालू महिन्याची प्रगती</h3>
                 <div style="position: relative; width: 80%; max-width: 280px; margin: auto; height: 280px;">
                     <canvas id="currentMonthGoalChart"></canvas>
                     <div id="currentMonthProgressText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; color: var(--text-primary);"></div>
                 </div>
-                <!-- आकड्यांसाठी नवीन div जोडला आहे -->
                 <div class="chart-details">
                     <span>पूर्ण: <b id="currentMonthAchieved" class="positive">₹ 0</b></span>
                     <span>ध्येय: <b id="currentMonthTarget">₹ 0</b></span>
                 </div>
             </div>
-            <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
 
             <div class="table-container" id="staffTable"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
                 <table>
@@ -372,34 +368,46 @@
             plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
         };
 
-        // ▼▼▼ पाय चार्टच्या लॉजिकमध्ये बदल केला आहे ▼▼▼
+        // ▼▼▼ तुमच्या मागणीनुसार पाय चार्टच्या लॉजिकमध्ये अचूक बदल केला आहे ▼▼▼
         function renderCurrentMonthPieChart(monthlyData) {
-            if (!_settings['Start Date'] || !_settings['End Date'] || !_settings['Target']) {
-                console.warn("Settings for pie chart are missing.");
-                return;
+            // --- नवीन लॉजिक: निश्चित कालावधी आणि टार्गेटनुसार महिन्याचे ध्येय काढा ---
+            const totalTarget = parseFloat(_settings['Target']) || 50000000; // Settings मधून टार्गेट घ्या किंवा 5 कोटी डीफॉल्ट ठेवा
+
+            const fixedStartDate = new Date('2024-10-01T00:00:00');
+            const fixedEndDate = new Date('2025-02-12T23:59:59');
+
+            // कालावधीतील एकूण दिवस मोजा
+            const timeDiff = fixedEndDate.getTime() - fixedStartDate.getTime();
+            const totalDaysInPeriod = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            // प्रत्येक दिवसाचे ध्येय (Daily Target) काढा
+            const dailyTarget = totalDaysInPeriod > 0 ? totalTarget / totalDaysInPeriod : 0;
+
+            // चालू महिन्याचा डेटा मिळवा
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth(); // 0-11 (जानेवारी=0)
+
+            // चालू महिन्याचे एकूण दिवस काढा
+            let daysInMonthForTarget = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // शेवटच्या महिन्यासाठी (फेब्रुवारी २०२५) फक्त १२ दिवस मोजा
+            if (currentYear === fixedEndDate.getFullYear() && currentMonth === fixedEndDate.getMonth()) {
+                daysInMonthForTarget = fixedEndDate.getDate();
             }
 
-            const totalTarget = parseFloat(_settings['Target']);
+            // चालू महिन्याचे ध्येय (Current Month Target) निश्चित करा
+            const currentMonthTarget = dailyTarget * daysInMonthForTarget;
             
-            const [startDay, startMonth, startYear] = _settings['Start Date'].split('-').map(Number);
-            const [endDay, endMonth, endYear] = _settings['End Date'].split('-').map(Number);
-            const startDate = new Date(startYear, startMonth - 1, startDay);
-            const endDate = new Date(endYear, endMonth - 1, endDay);
-            
-            const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1;
-            const averageMonthlyTarget = totalMonths > 0 ? totalTarget / totalMonths : 0;
-            
-            const now = new Date();
             const currentMonthKey = now.toISOString().slice(0, 7);
             const currentMonthStats = monthlyData[currentMonthKey] || { growth: 0 };
             const achievedGrowth = currentMonthStats.growth;
-            const remainingTarget = Math.max(0, averageMonthlyTarget - achievedGrowth);
-
-            const percentage = averageMonthlyTarget > 0 ? (achievedGrowth / averageMonthlyTarget) * 100 : 0;
+            const remainingTarget = Math.max(0, currentMonthTarget - achievedGrowth);
+            const percentage = currentMonthTarget > 0 ? (achievedGrowth / currentMonthTarget) * 100 : 0;
             
             // आकड्यांना अपडेट करणे
             document.getElementById('currentMonthAchieved').textContent = formatCurrencyPrecise(achievedGrowth);
-            document.getElementById('currentMonthTarget').textContent = formatCurrencyPrecise(averageMonthlyTarget);
+            document.getElementById('currentMonthTarget').textContent = formatCurrencyPrecise(currentMonthTarget);
             document.getElementById('currentMonthProgressText').textContent = `${percentage.toFixed(1)}%`;
             document.getElementById('currentMonthProgressText').style.color = percentage >= 100 ? 'var(--accent-secondary)' : 'var(--text-primary)';
 
