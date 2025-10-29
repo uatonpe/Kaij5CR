@@ -198,7 +198,7 @@
         </div>
 
         <div class="progress-card">
-            <h3>ध्येयपूर्ती (%)</h3>
+            <h3>एकूण ध्येयपूर्ती (%)</h3>
             <div class="progress-bar-container"><div class="progress-bar" id="goalProgressBar"></div></div>
             <div class="progress-label" id="goalProgressLabel">0%</div>
         </div>
@@ -206,6 +206,17 @@
         <div class="grid-layout">
             <div class="chart-container"><h3>🏆 कर्मचारी कामगिरी (एकूण वाढ)</h3><canvas id="staffPerformanceChart"></canvas></div>
             <div class="chart-container"><h3>📈 मासिक ट्रेंड (वाटप vs वसुली)</h3><canvas id="monthlyTrendChart"></canvas></div>
+            
+            <!-- ▼▼▼ नवीन पाय चार्ट इथे जोडला आहे ▼▼▼ -->
+            <div class="chart-container" style="grid-column: span 12; text-align: center;">
+                <h3>🎯 चालू महिन्याची प्रगती</h3>
+                <div style="position: relative; width: 70%; max-width: 300px; margin: auto; height: 300px;">
+                    <canvas id="currentMonthGoalChart"></canvas>
+                    <div id="currentMonthProgressText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 700; color: var(--text-primary);"></div>
+                </div>
+            </div>
+            <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
+
             <div class="table-container" id="staffTable"><h3>📊 कर्मचारी-निहाय सविस्तर अहवाल</h3>
                 <table>
                     <thead><tr><th>कर्मचाऱ्याचे नाव</th><th>एकूण वाटप</th><th>एकूण वसुली</th><th>एकूण वाढ (Growth)</th></tr></thead>
@@ -233,7 +244,7 @@
 
         const SETTINGS_SHEET = 'Settings';
         const DAILY_DATA_SHEET = 'DailyData';
-        const INITIAL_OUTSTANDING_SHEET = 'InitialOutstanding'; // !! महत्वाची सूचना: ही नवीन शीट तयार करा !!
+        const INITIAL_OUTSTANDING_SHEET = 'InitialOutstanding';
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         let _allDailyData = [];
@@ -299,15 +310,17 @@
                 if (!staffName || staffName.trim() === '') return;
                 const disbursement = parseFloat(row['New Accounts Disbursement']) || 0;
                 const recovery = parseFloat(row['Recovery']) || 0;
+                
                 staffPerformance[staffName] = staffPerformance[staffName] || { name: staffName, disbursement: 0, recovery: 0, growth: 0 };
                 staffPerformance[staffName].disbursement += disbursement;
                 staffPerformance[staffName].recovery += recovery;
                 staffPerformance[staffName].growth += (disbursement - recovery);
                 
                 const monthYear = row.dateObj.toISOString().slice(0, 7);
-                monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0 };
+                monthlyData[monthYear] = monthlyData[monthYear] || { disbursement: 0, recovery: 0, growth: 0 };
                 monthlyData[monthYear].disbursement += disbursement;
                 monthlyData[monthYear].recovery += recovery;
+                monthlyData[monthYear].growth += (disbursement - recovery);
             });
 
             const allStaffNames = new Set([...Object.keys(_initialStaffData), ...Object.keys(staffPerformance)]);
@@ -338,14 +351,68 @@
             renderMonthlyTrendChart(monthlyData);
             renderStaffTable(staffPerformance);
             renderPerformerCards(staffPerformance);
+            renderCurrentMonthPieChart(monthlyData); // नवीन चार्ट फंक्शन कॉल
         }
         
-        let staffChartInstance, monthlyChartInstance;
+        let staffChartInstance, monthlyChartInstance, currentMonthPieChartInstance;
         const chartOptions = {
             maintainAspectRatio: false,
             scales: { y: { beginAtZero: true, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } }, x: { ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } } },
             plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
         };
+
+        function renderCurrentMonthPieChart(monthlyData) {
+            if (!_settings['Start Date'] || !_settings['End Date'] || !_settings['Target']) {
+                console.warn("Settings for pie chart are missing.");
+                return;
+            }
+
+            const totalTarget = parseFloat(_settings['Target']);
+            
+            const [startDay, startMonth, startYear] = _settings['Start Date'].split('-').map(Number);
+            const [endDay, endMonth, endYear] = _settings['End Date'].split('-').map(Number);
+            const startDate = new Date(startYear, startMonth - 1, startDay);
+            const endDate = new Date(endYear, endMonth - 1, endDay);
+            
+            const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1;
+            const averageMonthlyTarget = totalMonths > 0 ? totalTarget / totalMonths : 0;
+            
+            const now = new Date();
+            const currentMonthKey = now.toISOString().slice(0, 7);
+            const currentMonthStats = monthlyData[currentMonthKey] || { growth: 0 };
+            const achievedGrowth = currentMonthStats.growth;
+            const remainingTarget = Math.max(0, averageMonthlyTarget - achievedGrowth);
+
+            const percentage = averageMonthlyTarget > 0 ? (achievedGrowth / averageMonthlyTarget) * 100 : 0;
+            document.getElementById('currentMonthProgressText').textContent = `${percentage.toFixed(1)}%`;
+            document.getElementById('currentMonthProgressText').style.color = percentage >= 100 ? 'var(--accent-secondary)' : 'var(--text-primary)';
+
+            const ctx = document.getElementById('currentMonthGoalChart').getContext('2d');
+            if (currentMonthPieChartInstance) {
+                currentMonthPieChartInstance.destroy();
+            }
+            currentMonthPieChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['पूर्ण (Achieved)', 'शिल्लक (Remaining)'],
+                    datasets: [{
+                        data: [achievedGrowth, remainingTarget],
+                        backgroundColor: ['#22c55e', '#e2e8f0'],
+                        borderColor: ['#ffffff'],
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
 
         function renderStaffPerformanceChart(staffData) {
             const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
@@ -438,7 +505,7 @@
                 document.getElementById('endDateFilter').valueAsDate = maxDate;
                 filterAndRenderDashboard(minDate, maxDate);
             } else {
-                filterAndRenderDashboard(null, null); // Render with empty data if no dates found
+                filterAndRenderDashboard(null, null);
             }
             
             document.getElementById('filterBtn').addEventListener('click', () => {
